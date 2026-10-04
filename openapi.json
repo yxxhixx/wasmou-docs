@@ -650,6 +650,15 @@
           },
           "429": {
             "description": "Rate limit exceeded"
+          },
+          "403": {
+            "description": "Insufficient balance (or IP not allowed)"
+          },
+          "422": {
+            "description": "Not enough allocated stock for your account"
+          },
+          "400": {
+            "description": "Validation error, out of stock or unavailable"
           }
         },
         "parameters": [
@@ -1261,6 +1270,9 @@
           },
           "429": {
             "description": "Rate limit exceeded"
+          },
+          "403": {
+            "description": "Insufficient balance (or IP not allowed)"
           }
         },
         "requestBody": {
@@ -1545,6 +1557,9 @@
           },
           "429": {
             "description": "Rate limit exceeded"
+          },
+          "403": {
+            "description": "Insufficient balance (or IP not allowed)"
           }
         },
         "requestBody": {
@@ -1690,6 +1705,210 @@
           }
         },
         "operationId": "pubgHistory"
+      }
+    },
+    "/beinsports/products": {
+      "get": {
+        "summary": "List BeIN Sports products",
+        "tags": [
+          "BeIN Sports"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "beinProducts",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          },
+          "403": {
+            "description": "Insufficient balance or IP not allowed"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/beinsports/order": {
+      "post": {
+        "summary": "Order a BeIN Sports subscription",
+        "tags": [
+          "BeIN Sports"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "beinOrder",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "variant_id",
+                  "sc_id",
+                  "client_name"
+                ],
+                "properties": {
+                  "variant_id": {
+                    "type": "integer"
+                  },
+                  "sc_id": {
+                    "type": "string",
+                    "description": "Smart card ID, 8-16 digits.",
+                    "example": "12345678"
+                  },
+                  "client_name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "order_id": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          },
+          "403": {
+            "description": "Insufficient balance or IP not allowed"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/beinsports/order/{orderId}": {
+      "get": {
+        "summary": "BeIN Sports order status",
+        "tags": [
+          "BeIN Sports"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "beinStatus",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          },
+          "403": {
+            "description": "Insufficient balance or IP not allowed"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
       }
     }
   }

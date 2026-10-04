@@ -1,0 +1,123 @@
+---
+title: PUBG Mobile
+description: UC top-up services via Gift4Card.
+---
+
+## 1. Get products
+
+**Endpoint:** `GET /api/pubg/products`
+
+```json Response
+{
+  "status": "success",
+  "message": "Products retrieved",
+  "data": [
+    { "id": 12345, "name": "60 UC",  "uc_amount": 60,  "available": true, "price": 265.00 },
+    { "id": 12346, "name": "325 UC", "uc_amount": 325, "available": true, "price": 1330.00 }
+  ]
+}
+```
+
+## 2. Check player (optional, recommended)
+
+**Endpoint:** `POST /api/pubg/check-player`
+
+```json Request
+{ "player_id": "1234567890" }
+```
+
+```json Response
+{
+  "status": "success",
+  "player_name": "PlayerName123",
+  "game": "PUBG Mobile",
+  "user_id": "1234567890",
+  "is_ban": 0
+}
+```
+
+## 3. Place order
+
+**Endpoint:** `POST /api/pubg/order`
+
+```json Request
+{ "product_id": 12345, "player_id": "1234567890" }
+```
+
+```json Response
+{
+  "success": true,
+  "message": "Order placed successfully",
+  "order_id": 789,
+  "status": "wait",
+  "data": { "order_id": "IDC123456", "status": "wait" }
+}
+```
+
+Use the internal `order_id` (the integer, here `789`) to check the status.
+
+## 4. Check order status
+
+**Endpoint:** `GET /api/pubg/status/{orderId}`
+
+```json Response
+{
+  "status": "success",
+  "message": "Order status retrieved",
+  "data": {
+    "id": 789,
+    "order_id": "G4C123456",
+    "product_name": "60 UC",
+    "player_id": "1234567890",
+    "quantity": 1,
+    "price": 265.00,
+    "status": "accept",
+    "codes": ["CODE123"],
+    "created_at": "2026-10-04T10:30:00.000000Z"
+  }
+}
+```
+
+**Status values:** `wait`, `accept`, `reject`. Codes appear in the response when the order is accepted.
+
+## 5. Order history
+
+**Endpoint:** `GET /api/pubg/history`
+
+```json Response
+{
+  "status": "success",
+  "message": "History retrieved",
+  "data": [
+    {
+      "id": 789,
+      "product_name": "60 UC",
+      "player_id": "1234567890",
+      "status": "accept",
+      "created_at": "2026-10-04T10:30:00.000000Z"
+    }
+  ]
+}
+```
+
+## Example workflow
+
+```bash
+curl -X GET "https://api.wasmou.net/api/pubg/products" -H "X-Api-Key: your_api_key"
+
+curl -X POST "https://api.wasmou.net/api/pubg/check-player" \
+  -H "X-Api-Key: your_api_key" -H "Content-Type: application/json" \
+  -d '{"player_id": "1234567890"}'
+
+curl -X POST "https://api.wasmou.net/api/pubg/order" \
+  -H "X-Api-Key: your_api_key" -H "Content-Type: application/json" \
+  -d '{"product_id": 12345, "player_id": "1234567890"}'
+
+curl -X GET "https://api.wasmou.net/api/pubg/status/789" -H "X-Api-Key: your_api_key"
+```
+
+## Best practices
+
+- Use the internal integer `order_id` to check status, not the external string.
+- Check the player before ordering.
+- Poll until the status is `accept` or `reject`.

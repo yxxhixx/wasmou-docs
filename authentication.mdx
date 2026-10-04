@@ -1,36 +1,91 @@
 ---
 title: Authentication
-description: Every request carries your API key.
+description: Every request carries your API key. Keep it secret and lock it to your server.
 ---
 
-Send your key in the `X-Api-Key` header on every request:
+All API requests require authentication with an API key.
 
-```bash
-curl https://api.wasmou.net/api/account -H "X-Api-Key: YOUR_API_KEY"
+## Required header
+
+```
+X-Api-Key: your_api_key_here
 ```
 
-`GET /status` is the only endpoint that works without a key.
+## Getting your API key
 
-## Keep the key safe
+<Steps>
+  <Step title="Sign in">Log in to your [Wasmou account](https://myapp.wasmou.net/login).</Step>
+  <Step title="Open API access">Go to **API access** in the sidebar. If you cannot see a key, API access is not enabled on your account yet: ask support.</Step>
+  <Step title="Copy the key">The key is shown once on screen with a ready-made `curl` command.</Step>
+  <Step title="Allow your server (recommended)">Add the IP address of the server that will call the API. Requests from any other address are refused.</Step>
+</Steps>
+
+## Example request
+
+<CodeGroup>
+```bash curl
+curl -X GET "https://api.wasmou.net/api/account" \
+  -H "X-Api-Key: your_api_key_here"
+```
+```js Node.js
+const res = await fetch("https://api.wasmou.net/api/account", {
+  headers: { "X-Api-Key": process.env.WASMOU_API_KEY },
+});
+console.log(await res.json());
+```
+```python Python
+import os, requests
+
+r = requests.get(
+    "https://api.wasmou.net/api/account",
+    headers={"X-Api-Key": os.environ["WASMOU_API_KEY"]},
+    timeout=30,
+)
+print(r.json())
+```
+```php PHP
+$ch = curl_init("https://api.wasmou.net/api/account");
+curl_setopt_array($ch, [
+    CURLOPT_HTTPHEADER => ["X-Api-Key: " . getenv("WASMOU_API_KEY")],
+    CURLOPT_RETURNTRANSFER => true,
+]);
+echo curl_exec($ch);
+```
+</CodeGroup>
+
+`GET /api/status` is the only endpoint that works without a key.
+
+## Security best practices
+
+### IP allow-list
+
+Configure allowed IP addresses in **API access**. When at least one address is set, only requests from those addresses are accepted. Wasmou reads the real client address behind Cloudflare (`CF-Connecting-IP`), so you only list your own server's public IP.
+
+### Keep your key secret
 
 <Warning>
-Your key spends your wallet balance. Never put it in a mobile app, a browser, a public repository or a support chat. Call Wasmou from your own server.
+Your key spends your wallet balance. Treat it like a password.
 </Warning>
 
-- **Allow-list your server.** In **API access** you can restrict the key to one or more IP addresses. Requests from other addresses get `403 IP address not allowed`.
-- **Rotate the key** from the same page if you suspect a leak. A new key can be generated once every 24 hours; the old one stops working immediately.
-- **One key per integration** is easier to rotate. If you need several, ask support.
+- Never commit keys to version control.
+- Keep them in environment variables or a secrets manager.
+- Never ship a key in a mobile app, a browser page or a support chat. Call Wasmou from your own backend.
+- Use different keys for development and production if you have more than one.
 
-## Responses
+### Rotate regularly
 
-Every response uses the same envelope:
+Generate a new key from **API access**. A new key can be generated **once every 24 hours**; the old key stops working immediately, so deploy the new one right away.
 
-```json
-{ "status": "success" | "error", "message": "Human readable text", "data": { } }
-```
+## Rate limiting
 
-On errors `data` is `null` (or a map of field errors for validation problems). See [Errors](/errors).
+- **60 requests per minute** per API key.
+- Exceeding it returns `429 Too Many Requests`.
+- Implement exponential back-off ([details](/errors#handling-rate-limits)).
 
-## Rate limit
+## Common authentication errors
 
-60 requests per minute per key. Exceeding it returns `429` with the reset time. Use the [catalog guide](/guides/sync-catalog) to stay well under the limit.
+| Error | HTTP | Description |
+| --- | --- | --- |
+| `API key is required` | 401 | The `X-Api-Key` header is missing. |
+| `Invalid API key` | 401 | The key is wrong, was rotated, or API access is not enabled. |
+| `IP address not allowed` | 403 | The request came from an address that is not on your allow-list. |

@@ -1,30 +1,153 @@
 ---
-title: Errors
-description: Status codes, messages and what to do about them.
+title: Error handling
+description: Status codes, messages, validation errors and how to recover from each.
 ---
 
-Errors keep the standard envelope:
+## HTTP status codes
+
+| Code | Description |
+| --- | --- |
+| `200` | Success. |
+| `400` | Bad request: the request could not be completed (validation, out of stock, unavailable product). |
+| `401` | Unauthorized: missing or invalid API key. |
+| `403` | Forbidden: insufficient balance, or the IP address is not allowed. |
+| `404` | Not found: unknown order, product or route. |
+| `422` | Not allowed: for example insufficient allocated stock. |
+| `429` | Too many requests: rate limit exceeded. |
+| `500` | Internal server error. |
+| `502` | Bad gateway: the upstream service is temporarily unreachable. |
+
+## Error response format
 
 ```json
-{ "status": "error", "message": "Insufficient balance.", "data": null }
+{
+  "status": "error",
+  "message": "Error description",
+  "data": null
+}
 ```
 
-| HTTP | When | What to do |
-| --- | --- | --- |
-| `400` | The request was understood but could not be completed: not enough balance, out of stock, invalid input. `message` says why. | Fix the cause. Do not retry unchanged. |
-| `401` | Missing or invalid `X-Api-Key`, or API access is not enabled for your account. | Check the key. It may have been rotated. |
-| `403` | The request came from an IP address that is not on your allow-list. | Add the IP in the app, or remove the restriction. |
-| `404` | Unknown order, product or route. | Check the ID. |
-| `422` | Validation failed. `data` lists the fields. | Correct the fields. |
-| `429` | More than 60 requests per minute. | Wait until the reset time in `data.reset`. |
-| `500` / `502` | Something went wrong on our side or upstream. | Retry reads after a few seconds. For purchases, check `GET /orders` first. |
+## Common error messages
 
-## Common messages
+| Message | HTTP | Description | Solution |
+| --- | --- | --- | --- |
+| `API key is required` | 401 | The `X-Api-Key` header is missing. | Add the header to every request. |
+| `Invalid API key` | 401 | The key is wrong, was rotated, or API access is not enabled. | Check the key in the dashboard. |
+| `IP address not allowed` | 403 | The request IP is not on your allow-list. | Add the IP, or remove the restriction. |
+| `Insufficient balance` | 403 | Your available balance is lower than the order total. | Add funds, then retry. |
+| `Insufficient allocated stock. Only N unit(s) remaining…` | 422 | Your [stock allocation](/concepts/stock) is smaller than the quantity. Nothing was charged. | Buy fewer units or ask for a larger allocation. |
+| `Your allocated stock for this product is not currently available.` | 422 | Your allocation is paused or expired. | Contact support. |
+| `Order not found` | 404 | The order does not exist or is not yours. | Check the ID. |
+| `Product not found` | 404 | The product or variant does not exist. | Refresh your [catalog](/services/catalog). |
+| `Product out of stock` | 400 | A key-based variant has no units left. | Choose another variant or wait. |
+| `Validation failed` | 400 | Invalid input. | See the field errors below. |
+| `Too Many Requests` | 429 | Rate limit exceeded. | Back off ([see below](#handling-rate-limits)). |
+| `Upstream service unavailable` | 502 | The platform is temporarily unreachable. | Retry reads after a few seconds. |
 
-| Message | Meaning |
-| --- | --- |
-| `Insufficient balance.` | Available balance is lower than the order total. |
-| `Insufficient allocated stock. Only N unit(s) remaining…` | Your allocation for this product is too small. Nothing was charged. |
-| `Your allocated stock for this product is not currently available.` | Your allocation is paused or expired. |
-| `IP address not allowed` | See `403` above. |
-| `API key is required` | The `X-Api-Key` header is missing. |
+## Validation errors
+
+Validation errors list the problem per field:
+
+```json
+{
+  "status": "error",
+  "message": "Validation failed",
+  "data": {
+    "quantity": ["The quantity must be at least 1."],
+    "player_id": ["The player id field is required."]
+  }
+}
+```
+
+## Handling rate limits
+
+The limit is **60 requests per minute** per API key. When you receive `429`:
+
+1. Wait before retrying (exponential back-off).
+2. Reduce the request frequency.
+3. Cache responses where you can (the [catalog](/guides/sync-catalog) in particular).
+
+Back-off schedule: 1 s, 2 s, 4 s, 8 s... doubling up to a maximum (for example 60 s).
+
+```js
+async function withBackoff(fn, { retries = 6 } = {}) {
+  let wait = 1000;
+  for (let attempt = 0; ; attempt++) {
+    const res = await fn();
+    if (res.status !== 429 || attempt >= retries) return res;
+    await new Promise((r) => setTimeout(r, wait));
+    wait = Math.min(wait * 2, 60_000);
+  }
+}
+```
+
+## Refunds
+
+If an order fails, your balance is **refunded automatically**. No action is required.
+
+## Best practices
+
+### 1. Always check status codes
+
+```js
+const response = await fetch(url, options);
+const body = await response.json();
+
+if (!response.ok) {
+  if (response.status === 429) return retryLater();
+  if (response.status === 401) throw new Error("Invalid API key");
+  if (response.status === 403 && /balance/i.test(body.message)) {
+    throw new Error("Please add funds to your Wasmou wallet");
+  }
+  throw new Error(body.message);
+}
+```
+
+### 2. Validate before you submit
+
+- Free Fire: `POST /api/freefire/check-player`
+- PUBG Mobile: `POST /api/pubg/check-player`
+
+### 3. Handle timeouts safely
+
+Orders are processed asynchronously. If a request times out:
+
+- **Do not retry immediately.** The first request may have gone through.
+- Look at `GET /api/orders` to see whether the order exists.
+- Save any order or transaction ID you did receive, and poll its status endpoint.
+
+### 4. Monitor your balance
+
+```js
+const { data } = await (await fetch("https://api.wasmou.net/api/balance", {
+  headers: { "X-Api-Key": apiKey },
+})).json();
+
+if (data.available_balance < orderTotal) {
+  throw new Error("Top up your wallet first");
+}
+```
+
+### 5. Log what you send
+
+```js
+try {
+  await placeOrder(payload);
+} catch (error) {
+  console.error("Order failed", {
+    endpoint: "/api/freefire/order",
+    request: payload,        // never log your API key
+    error: error.message,
+    timestamp: new Date().toISOString(),
+  });
+  throw error;
+}
+```
+
+## Getting help
+
+If an error persists:
+
+1. Check your API key and IP allow-list.
+2. Check your balance.
+3. Contact [support](https://t.me/wasmou_app) with the timestamp, the request (without secrets), the message you received and the order ID if you have one.

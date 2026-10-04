@@ -1,0 +1,70 @@
+---
+title: BeIN Sports
+description: Subscription packages for BeIN Sports.
+---
+
+## 1. Get products
+
+**Endpoint:** `GET /api/beinsports/products`
+
+```json Response
+{
+  "status": "success",
+  "message": "Products retrieved",
+  "data": [
+    { "id": 1, "name": "BeIN Sports 1 Month",  "price": 1500.00 },
+    { "id": 2, "name": "BeIN Sports 3 Months", "price": 4000.00 }
+  ]
+}
+```
+
+## 2. Place order
+
+**Endpoint:** `POST /api/beinsports/order`
+
+```json Request
+{ "variant_id": 1, "sc_id": "12345678", "client_name": "John Doe" }
+```
+
+| Field | Rules |
+| --- | --- |
+| `variant_id` | An existing variant from the products list. |
+| `sc_id` | Smart card ID: 8 to 16 digits, numbers only. |
+| `client_name` | 2 to 100 characters. |
+
+```json Response
+{
+  "status": "success",
+  "message": "Order placed successfully",
+  "data": { "order_id": 123, "status": "pending" }
+}
+```
+
+## 3. Check order status
+
+**Endpoint:** `GET /api/beinsports/order/{orderId}`
+
+```json Response
+{
+  "status": "success",
+  "message": "Order details retrieved",
+  "data": {
+    "order_id": 123,
+    "sc_id": "12345678",
+    "client_name": "John Doe",
+    "offer_name": "BeIN Sports 1 Month",
+    "amount": 1500.00,
+    "status": "pending",
+    "created_at": "2026-10-04T10:30:00.000000Z",
+    "delivered_at": null
+  }
+}
+```
+
+**Status values:** `pending`, `completed`, `failed`.
+
+```bash
+curl -X POST "https://api.wasmou.net/api/beinsports/order" \
+  -H "X-Api-Key: your_api_key" -H "Content-Type: application/json" \
+  -d '{"variant_id": 1, "sc_id": "12345678", "client_name": "John Doe"}'
+```

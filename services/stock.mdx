@@ -1,0 +1,61 @@
+---
+title: Stock
+description: Read the units Wasmou has reserved for your account.
+---
+
+Stock allocations are set by Wasmou for your account. Read [Per-client stock](/concepts/stock) for how they behave when you buy.
+
+## List your allocations
+
+**Endpoint:** `GET /api/stock`
+
+```json Response
+{
+  "status": "success",
+  "message": "Stock retrieved",
+  "data": [
+    {
+      "variant_id": 15,
+      "product_id": 15,
+      "product_name": "Microsoft Windows 10/11 Pro (license key)",
+      "variant_name": "Microsoft Windows 10|11 Pro (PC)",
+      "allocated": 12,
+      "used": 3,
+      "remaining": 9,
+      "status": "active",
+      "expires_at": null
+    }
+  ]
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `allocated` | Total units assigned to you. `null` when released. |
+| `used` | Units you already bought. |
+| `remaining` | Units you can buy right now. `null` when released (unrestricted). |
+| `status` | `active`, `paused`, `expired`, `exhausted` or `released`. |
+| `expires_at` | ISO 8601 date, or `null`. |
+
+## Get one variant
+
+**Endpoint:** `GET /api/stock/{variantId}`
+
+```json With an allocation
+{
+  "status": "success",
+  "message": "Stock retrieved",
+  "data": {
+    "variant_id": 15, "allocated": 12, "used": 3, "remaining": 9,
+    "status": "active", "expires_at": null, "restricted": true
+  }
+}
+```
+
+```json Without an allocation
+{
+  "status": "success",
+  "message": "No allocation for this variant (unrestricted)",
+  "data": { "variant_id": 15, "restricted": false }
+}
+```

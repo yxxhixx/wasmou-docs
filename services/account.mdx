@@ -1,0 +1,61 @@
+---
+title: Account & balance
+description: Retrieve your account information and spendable balance.
+---
+
+## Get account information
+
+Retrieve your account details and balance.
+
+**Endpoint:** `GET /api/account`
+
+```json Response
+{
+  "status": "success",
+  "message": "Account information retrieved",
+  "data": {
+    "user_id": 123,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "balance": 5000.00,
+    "available_balance": 4500.00
+  }
+}
+```
+
+## Get balance
+
+Retrieve the balance only. This is the lightest call to make before a purchase.
+
+**Endpoint:** `GET /api/balance`
+
+```json Response
+{
+  "status": "success",
+  "message": "Balance retrieved",
+  "data": {
+    "balance": 5000.00,
+    "available_balance": 4500.00
+  }
+}
+```
+
+## Example usage
+
+```bash
+# Full account info
+curl -X GET "https://api.wasmou.net/api/account" \
+  -H "X-Api-Key: your_api_key_here"
+
+# Balance only
+curl -X GET "https://api.wasmou.net/api/balance" \
+  -H "X-Api-Key: your_api_key_here"
+```
+
+## Balance notes
+
+- `balance` is the total balance of your wallet.
+- `available_balance` is what you can spend right now (the balance minus amounts reserved by pending operations). **Use this one for decisions.**
+- All amounts are in DZD.
+- If an order fails, the amount is **refunded automatically**.
+- Add funds from the [deposit page](https://myapp.wasmou.net/deposit).

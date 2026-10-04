@@ -36,19 +36,48 @@
         "groups": [
           {
             "group": "Get started",
-            "pages": ["index", "quickstart", "authentication"]
+            "pages": [
+              "index",
+              "quickstart",
+              "authentication"
+            ]
           },
           {
             "group": "Concepts",
-            "pages": ["concepts/delivery", "concepts/stock", "concepts/pricing"]
+            "pages": [
+              "concepts/delivery",
+              "concepts/stock",
+              "concepts/pricing"
+            ]
+          },
+          {
+            "group": "Services",
+            "pages": [
+              "services/account",
+              "services/catalog",
+              "services/products",
+              "services/orders",
+              "services/stock",
+              "services/freefire",
+              "services/pubg",
+              "services/beinsports"
+            ]
           },
           {
             "group": "Guides",
-            "pages": ["guides/sync-catalog", "guides/automate-fulfilment", "guides/game-topups"]
+            "pages": [
+              "guides/sync-catalog",
+              "guides/automate-fulfilment",
+              "guides/game-topups"
+            ]
           },
           {
             "group": "Reference",
-            "pages": ["errors", "changelog"]
+            "pages": [
+              "errors",
+              "changelog",
+              "ai-tools"
+            ]
           }
         ]
       },
@@ -58,12 +87,20 @@
           {
             "group": "Account",
             "openapi": "openapi.json",
-            "pages": ["GET /account", "GET /balance", "GET /status"]
+            "pages": [
+              "GET /account",
+              "GET /balance",
+              "GET /status"
+            ]
           },
           {
             "group": "Catalog",
             "openapi": "openapi.json",
-            "pages": ["GET /catalog", "GET /products", "GET /products/{productId}/variants"]
+            "pages": [
+              "GET /catalog",
+              "GET /products",
+              "GET /products/{productId}/variants"
+            ]
           },
           {
             "group": "Orders",
@@ -78,7 +115,10 @@
           {
             "group": "Stock",
             "openapi": "openapi.json",
-            "pages": ["GET /stock", "GET /stock/{variantId}"]
+            "pages": [
+              "GET /stock",
+              "GET /stock/{variantId}"
+            ]
           },
           {
             "group": "Free Fire",
@@ -100,20 +140,40 @@
               "GET /pubg/status/{orderId}",
               "GET /pubg/history"
             ]
+          },
+          {
+            "group": "BeIN Sports",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /beinsports/products",
+              "POST /beinsports/order",
+              "GET /beinsports/order/{orderId}"
+            ]
           }
         ]
       }
     ],
     "global": {
       "anchors": [
-        { "anchor": "Dashboard", "href": "https://myapp.wasmou.net/app", "icon": "gauge" },
-        { "anchor": "Support", "href": "https://t.me/wasmou_app", "icon": "paper-plane" }
+        {
+          "anchor": "Dashboard",
+          "href": "https://myapp.wasmou.net/app",
+          "icon": "gauge"
+        },
+        {
+          "anchor": "Support",
+          "href": "https://t.me/wasmou_app",
+          "icon": "paper-plane"
+        }
       ]
     }
   },
   "navbar": {
     "links": [
-      { "label": "Support", "href": "https://t.me/wasmou_app" }
+      {
+        "label": "Support",
+        "href": "https://t.me/wasmou_app"
+      }
     ],
     "primary": {
       "type": "button",
@@ -122,7 +182,16 @@
     }
   },
   "contextual": {
-    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {

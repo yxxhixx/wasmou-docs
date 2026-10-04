@@ -1,0 +1,95 @@
+---
+title: Catalog
+description: Every product and variant with your price, delivery mode and stock, in one call.
+---
+
+The catalog is the starting point of an integration. One request returns everything you need to mirror Wasmou products in your own shop.
+
+## Get the catalog
+
+**Endpoint:** `GET /api/catalog`
+
+| Query parameter | Type | Description |
+| --- | --- | --- |
+| `category_id` | integer, optional | Only products of this category. |
+
+```json Response
+{
+  "status": "success",
+  "message": "Catalog retrieved",
+  "data": {
+    "generated_at": "2026-10-04T10:21:00+00:00",
+    "categories": [
+      { "id": 10, "name": "Mobile Gaming" }
+    ],
+    "products": [
+      {
+        "id": 15,
+        "name": "PUBG Mobile UC",
+        "description": "Plain-text description",
+        "image": "https://example.com/pubg.png",
+        "category_id": 10,
+        "requires_input": true,
+        "input_fields": { "player_id": { "rules": "required" } },
+        "variants": [
+          {
+            "id": 15,
+            "name": "60 UC",
+            "price": 245.59,
+            "currency": "DZD",
+            "delivery": "key",
+            "in_stock": 6,
+            "available": true,
+            "client_stock": {
+              "variant_id": 15, "allocated": 12, "used": 3, "remaining": 9,
+              "status": "active", "expires_at": null
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+## Fields
+
+### Product
+
+| Field | Description |
+| --- | --- |
+| `id` | Stable product ID. |
+| `name`, `description`, `image` | Display data. `description` is plain text. |
+| `category_id` | Matches an entry in `categories`. |
+| `requires_input` | `true` when the buyer must provide extra data (a player ID, an email...). |
+| `input_fields` | The extra fields to send with the purchase, with their validation rules. |
+| `variants` | The purchasable options. |
+
+### Variant
+
+| Field | Description |
+| --- | --- |
+| `id` | Stable variant ID. Use it in `POST /products/purchase/{variantId}`. |
+| `name` | For example `60 UC` or `1 Year`. |
+| `price` | **Your** price in DZD, with your reseller terms applied. |
+| `delivery` | `instant`, `key` or `manual`. See [delivery modes](/concepts/delivery). |
+| `in_stock` | Units left for `key` variants. `null` for `instant` and `manual`, which are not counted. |
+| `available` | `false` when a `key` variant is out of stock. |
+| `client_stock` | Present only if you have an [allocation](/concepts/stock) for this variant. |
+
+## Example
+
+```bash
+curl -X GET "https://api.wasmou.net/api/catalog" \
+  -H "X-Api-Key: your_api_key_here"
+
+# One category only
+curl -X GET "https://api.wasmou.net/api/catalog?category_id=10" \
+  -H "X-Api-Key: your_api_key_here"
+```
+
+## Good to know
+
+- Refresh every **5 to 15 minutes**, not on every customer click. See [Sync the catalog](/guides/sync-catalog).
+- `price` is your wholesale cost. Show your customers your own selling price.
+- Match products and variants by `id`; names and prices can change.

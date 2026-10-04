@@ -1,0 +1,18 @@
+---
+title: AI tools & MCP
+description: Use these docs from ChatGPT, Claude, Cursor and other AI assistants.
+---
+
+These documentation pages are available to AI tools in several ways.
+
+- **Copy page** and **Open in...** in the menu at the top of every page send the page to ChatGPT, Claude, Perplexity, Cursor or VS Code.
+- **MCP server.** This site exposes a Model Context Protocol (MCP) server, so assistants can search and read the Wasmou docs while they help you write an integration. Use the **MCP** option in the page menu to get the connection command for your tool.
+- **`llms.txt`.** Every page is also available as plain Markdown, and `/llms.txt` and `/llms-full.txt` list the whole site for language models.
+
+<Tip>
+When you ask an assistant to write integration code, point it at the [OpenAPI specification](https://github.com/yxxhixx/wasmou-docs/blob/main/openapi.json) and the [error handling](/errors) page so it uses the real endpoints and recovers from failures correctly.
+</Tip>
+
+<Warning>
+Never paste your API key into an AI assistant or a shared chat. Use environment variables in the code it writes.
+</Warning>
