@@ -1,47 +1,66 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: Quickstart
+description: From zero to your first delivered code.
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
-
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Get your API key">
+    Sign in to the [Wasmou app](https://myapp.wasmou.net/app/api-access), open **API access** and copy your key. API access must be enabled on your account; ask support if you do not see the key.
+  </Step>
+  <Step title="Check that it works">
+    <CodeGroup>
+    ```bash curl
+    curl https://api.wasmou.net/api/balance \
+      -H "X-Api-Key: YOUR_API_KEY"
+    ```
 
-    ```bash
-    npm install your-package
+    ```js Node.js
+    const res = await fetch("https://api.wasmou.net/api/balance", {
+      headers: { "X-Api-Key": process.env.WASMOU_API_KEY },
+    });
+    console.log(await res.json());
+    ```
+
+    ```python Python
+    import os, requests
+    r = requests.get("https://api.wasmou.net/api/balance",
+                     headers={"X-Api-Key": os.environ["WASMOU_API_KEY"]})
+    print(r.json())
+    ```
+    </CodeGroup>
+
+    ```json
+    { "status": "success", "message": "Balance retrieved",
+      "data": { "balance": 10001, "available_balance": 10001 } }
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
-
+  <Step title="Read the catalog">
     ```bash
-    your-cli init
+    curl https://api.wasmou.net/api/catalog -H "X-Api-Key: YOUR_API_KEY"
+    ```
+    Pick a variant. Its `delivery` tells you what happens after you buy: `instant`, `key` or `manual` ([details](/concepts/delivery)).
+  </Step>
+  <Step title="Buy it">
+    ```bash
+    curl -X POST https://api.wasmou.net/api/products/purchase/15 \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"quantity": 1}'
+    ```
+    ```json
+    { "status": "success", "message": "Purchase successful",
+      "data": { "order_ids": ["06061206"], "count": 1 } }
     ```
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
-
+  <Step title="Get the code">
     ```bash
-    your-cli start
+    curl -X POST https://api.wasmou.net/api/products/orders/retrieve \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"order_ids": ["06061206"]}'
     ```
+    When `has_key` is `true`, the code is in `key`.
   </Step>
 </Steps>
 
 <Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
-
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+Products that need extra input (a player ID, an email) list it in `input_fields` in the catalog. Send those fields in the purchase body.
 </Tip>

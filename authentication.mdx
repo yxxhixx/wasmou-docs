@@ -1,0 +1,36 @@
+---
+title: Authentication
+description: Every request carries your API key.
+---
+
+Send your key in the `X-Api-Key` header on every request:
+
+```bash
+curl https://api.wasmou.net/api/account -H "X-Api-Key: YOUR_API_KEY"
+```
+
+`GET /status` is the only endpoint that works without a key.
+
+## Keep the key safe
+
+<Warning>
+Your key spends your wallet balance. Never put it in a mobile app, a browser, a public repository or a support chat. Call Wasmou from your own server.
+</Warning>
+
+- **Allow-list your server.** In **API access** you can restrict the key to one or more IP addresses. Requests from other addresses get `403 IP address not allowed`.
+- **Rotate the key** from the same page if you suspect a leak. A new key can be generated once every 24 hours; the old one stops working immediately.
+- **One key per integration** is easier to rotate. If you need several, ask support.
+
+## Responses
+
+Every response uses the same envelope:
+
+```json
+{ "status": "success" | "error", "message": "Human readable text", "data": { } }
+```
+
+On errors `data` is `null` (or a map of field errors for validation problems). See [Errors](/errors).
+
+## Rate limit
+
+60 requests per minute per key. Exceeding it returns `429` with the reset time. Use the [catalog guide](/guides/sync-catalog) to stay well under the limit.

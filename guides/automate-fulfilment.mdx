@@ -1,0 +1,53 @@
+---
+title: Automate fulfilment
+description: A reliable purchase-and-deliver loop that handles every delivery mode.
+---
+
+The same loop works for `instant`, `key` and `manual` variants. Only the waiting time differs.
+
+<Steps>
+  <Step title="Buy">
+    `POST /products/purchase/{variantId}` with `quantity` and any `input_fields`. Save the returned `order_ids` in your database **before** doing anything else.
+  </Step>
+  <Step title="Poll">
+    `POST /products/orders/retrieve` with your saved IDs. Orders in `processing` are not done yet.
+  </Step>
+  <Step title="Deliver">
+    When `has_key` is `true`, send `key` to your customer and mark the order done. If the status is `failed`, `refunded` or `canceled`, the amount is back in your wallet: tell the customer and refund them on your side.
+  </Step>
+</Steps>
+
+## Example (Node.js)
+
+```js
+const API = "https://api.wasmou.net/api";
+const headers = { "X-Api-Key": process.env.WASMOU_API_KEY, "Content-Type": "application/json" };
+
+async function buy(variantId, quantity = 1, input = {}) {
+  const r = await fetch(`${API}/products/purchase/${variantId}`, {
+    method: "POST", headers, body: JSON.stringify({ quantity, ...input }),
+  });
+  const body = await r.json();
+  if (body.status !== "success") throw new Error(body.message);
+  return body.data.order_ids;            // persist these immediately
+}
+
+async function waitForDelivery(orderIds, { every = 15_000, timeout = 30 * 60_000 } = {}) {
+  const started = Date.now();
+  while (Date.now() - started < timeout) {
+    const r = await fetch(`${API}/products/orders/retrieve`, {
+      method: "POST", headers, body: JSON.stringify({ order_ids: orderIds }),
+    });
+    const { data } = await r.json();
+    if (data.every((o) => o.status !== "processing")) return data;
+    await new Promise((res) => setTimeout(res, every));
+  }
+  throw new Error("Still processing; check again later");
+}
+```
+
+## Good habits
+
+- **Never retry a purchase blindly.** If the request timed out, look at `GET /orders` first to see whether it went through.
+- **Stop polling** a manual order after your own deadline and check again later. Manual orders can take a while.
+- **Log the order ID** next to your own order reference so support can find it quickly.

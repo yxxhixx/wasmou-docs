@@ -1,0 +1,41 @@
+---
+title: Per-client stock
+description: Units reserved for your account.
+---
+
+Wasmou can **allocate** a number of units of a variant to your account only. Allocation is a ceiling, separate from your wallet balance:
+
+- With **no allocation**, a variant is unrestricted: you can buy as long as your balance and the shared stock allow it.
+- With an **allocation**, you can buy at most `remaining` units. Every successful purchase consumes the same number of units; a refund returns them.
+- An allocation can be **paused**, **expired** or **released** by Wasmou. Paused and expired allocations block buying. Released ones are unrestricted again.
+
+The allocation is checked and consumed in the same transaction as your wallet debit, so two parallel requests can never overspend it.
+
+## Reading your stock
+
+```bash
+curl https://api.wasmou.net/api/stock -H "X-Api-Key: YOUR_API_KEY"
+```
+
+```json
+{
+  "status": "success",
+  "data": [{
+    "variant_id": 15, "product_id": 15,
+    "product_name": "Microsoft Windows 10/11 Pro (license key)",
+    "variant_name": "Microsoft Windows 10|11 Pro (PC)",
+    "allocated": 12, "used": 3, "remaining": 9,
+    "status": "active", "expires_at": null
+  }]
+}
+```
+
+Catalog variants that have an allocation carry the same data in `client_stock`.
+
+## When stock runs out
+
+```json
+{ "status": "error", "message": "Insufficient allocated stock. Only 1 unit(s) remaining on your account for this product.", "data": null }
+```
+
+Nothing is charged and nothing is consumed. Ask Wasmou to raise the allocation, or buy a smaller quantity.

@@ -1,0 +1,41 @@
+---
+title: Sync the catalog
+description: Mirror Wasmou products in your own shop without hammering the API.
+---
+
+`GET /catalog` returns everything in one response, so one request refreshes your whole shop.
+
+```bash
+curl https://api.wasmou.net/api/catalog -H "X-Api-Key: YOUR_API_KEY"
+```
+
+```json
+{
+  "status": "success",
+  "data": {
+    "generated_at": "2026-10-04T10:21:00+00:00",
+    "categories": [{ "id": 10, "name": "Mobile Gaming" }],
+    "products": [{
+      "id": 15, "name": "PUBG Mobile UC", "category_id": 10,
+      "requires_input": true,
+      "input_fields": { "player_id": { "rules": "required" } },
+      "variants": [{
+        "id": 15, "name": "60 UC", "price": 245.59, "currency": "DZD",
+        "delivery": "key", "in_stock": 6, "available": true
+      }]
+    }]
+  }
+}
+```
+
+## Recommended pattern
+
+1. Refresh the catalog every **5 to 15 minutes**, or on demand when a customer opens a product.
+2. Match products and variants by `id`. IDs are stable; names and prices change.
+3. Hide variants where `available` is `false`.
+4. Treat `in_stock` as a hint, not a promise. Always handle a purchase error.
+5. Add `?category_id=10` to fetch one category.
+
+<Tip>
+Show your customers your own selling price. The `price` you get is your wholesale cost.
+</Tip>

@@ -1,0 +1,18 @@
+---
+title: Changelog
+description: What changed in the Wasmou API.
+---
+
+<Update label="October 2026" description="Wasmou V3">
+  **New**
+  - `GET /catalog`: the full catalog with prices, delivery mode, stock and required inputs in one call.
+  - `GET /stock` and `GET /stock/{variantId}`: per-client stock allocations. Catalog and variant responses include `client_stock` when you have an allocation.
+  - New API host: `https://api.wasmou.net`. Documentation moved to this site.
+
+  **Changed**
+  - Responses no longer start with a byte-order mark (an invisible character before the opening brace).
+  - The public product search (`/api/products/search`, `/api/products/filter`) no longer returns supplier cost information.
+
+  **Removed**
+  - Internet / ADSL top-ups, IMEI services, social-media (SMM) services, Flexy mobile top-ups and the IPTV product range. Their endpoints return `404`. IPTV will return as a separate API.
+</Update>

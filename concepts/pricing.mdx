@@ -1,0 +1,15 @@
+---
+title: Pricing and balance
+description: What you pay and how your wallet works.
+---
+
+- All amounts are in **DZD**.
+- The `price` in the catalog is **your** price, with your reseller terms applied. Other accounts may see different prices for the same variant.
+- Your wallet has a `balance` and an `available_balance`. The available balance is what you can spend right now (balance minus amounts reserved by pending operations). Use `available_balance` for decisions.
+- A purchase debits the wallet when it is accepted. Failed or canceled orders are refunded automatically.
+
+Add funds from the [app](https://myapp.wasmou.net/deposit): card (CIB / Edahabia), Baridi Mob transfer, point of sale or cash pickup.
+
+<Warning>
+A purchase fails with `Insufficient balance` if your available balance is lower than `price × quantity`. Check `GET /balance` before a large batch.
+</Warning>

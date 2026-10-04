@@ -1,72 +1,132 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Wasmou API",
+  "description": "Sell digital goods through one API: catalog, instant delivery, game top-ups, per-client stock.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#FFC400",
+    "light": "#FFD84D",
+    "dark": "#0A0A0A"
+  },
+  "background": {
+    "color": {
+      "light": "#F6F5F0",
+      "dark": "#0A0A0A"
+    }
+  },
+  "fonts": {
+    "family": "Inter"
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "styling": {
+    "codeblocks": "dark"
   },
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://myapp.wasmou.net"
+  },
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": ["index", "quickstart", "authentication"]
+          },
+          {
+            "group": "Concepts",
+            "pages": ["concepts/delivery", "concepts/stock", "concepts/pricing"]
+          },
+          {
+            "group": "Guides",
+            "pages": ["guides/sync-catalog", "guides/automate-fulfilment", "guides/game-topups"]
+          },
+          {
+            "group": "Reference",
+            "pages": ["errors", "changelog"]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Account",
+            "openapi": "openapi.json",
+            "pages": ["GET /account", "GET /balance", "GET /status"]
+          },
+          {
+            "group": "Catalog",
+            "openapi": "openapi.json",
+            "pages": ["GET /catalog", "GET /products", "GET /products/{productId}/variants"]
+          },
+          {
+            "group": "Orders",
+            "openapi": "openapi.json",
+            "pages": [
+              "POST /products/purchase/{variantId}",
+              "GET /products/order/{orderId}",
+              "POST /products/orders/retrieve",
+              "GET /orders"
+            ]
+          },
+          {
+            "group": "Stock",
+            "openapi": "openapi.json",
+            "pages": ["GET /stock", "GET /stock/{variantId}"]
+          },
+          {
+            "group": "Free Fire",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /freefire/plans",
+              "POST /freefire/check-player",
+              "POST /freefire/order",
+              "GET /freefire/status/{trxId}"
+            ]
+          },
+          {
+            "group": "PUBG Mobile",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /pubg/products",
+              "POST /pubg/check-player",
+              "POST /pubg/order",
+              "GET /pubg/status/{orderId}",
+              "GET /pubg/history"
+            ]
+          }
         ]
       }
     ],
     "global": {
       "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
+        { "anchor": "Dashboard", "href": "https://myapp.wasmou.net/app", "icon": "gauge" },
+        { "anchor": "Support", "href": "https://t.me/wasmou_app", "icon": "paper-plane" }
       ]
     }
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
   "navbar": {
     "links": [
-      {
-        "label": "Support",
-        "href": "mailto:support@mintlify.com"
-      }
+      { "label": "Support", "href": "https://t.me/wasmou_app" }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Open dashboard",
+      "href": "https://myapp.wasmou.net/app"
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "telegram": "https://t.me/wasmou_app"
     }
   }
 }

@@ -1,0 +1,1696 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Wasmou API",
+    "version": "1.0.0",
+    "description": "Sell digital goods: catalog, purchase, delivery, game top-ups and per-client stock. All amounts are in DZD."
+  },
+  "servers": [
+    {
+      "url": "https://api.wasmou.net/api",
+      "description": "Production"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key",
+        "description": "Your API key from the Wasmou app (API access)."
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "error"
+          },
+          "message": {
+            "type": "string",
+            "example": "Insufficient balance."
+          },
+          "data": {
+            "nullable": true
+          }
+        }
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "number",
+            "example": 10001
+          },
+          "available_balance": {
+            "type": "number",
+            "example": 10001,
+            "description": "What you can spend right now."
+          }
+        }
+      },
+      "ClientStock": {
+        "type": "object",
+        "properties": {
+          "variant_id": {
+            "type": "integer"
+          },
+          "allocated": {
+            "type": "integer",
+            "nullable": true
+          },
+          "used": {
+            "type": "integer"
+          },
+          "remaining": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Units you can buy right now. null when released (unrestricted)."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "expired",
+              "exhausted",
+              "released"
+            ]
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "CatalogVariant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "description": "Your price in DZD."
+          },
+          "currency": {
+            "type": "string",
+            "example": "DZD"
+          },
+          "delivery": {
+            "type": "string",
+            "enum": [
+              "instant",
+              "key",
+              "manual"
+            ]
+          },
+          "in_stock": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Units left for key-based variants; null for instant and manual."
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "client_stock": {
+            "$ref": "#/components/schemas/ClientStock"
+          }
+        }
+      },
+      "CatalogProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "category_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "requires_input": {
+            "type": "boolean"
+          },
+          "input_fields": {
+            "type": "object",
+            "description": "Extra fields to send with the purchase when requires_input is true."
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogVariant"
+            }
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "example": "06061206"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "variant_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "completed",
+              "delivered",
+              "failed",
+              "refunded",
+              "canceled"
+            ],
+            "description": "Final unless `processing`. Manual products use `delivered` / `canceled`."
+          },
+          "key": {
+            "type": "string",
+            "nullable": true,
+            "description": "The delivered code, once available."
+          },
+          "has_key": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "number"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchase_timestamp": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "Service status",
+        "description": "Health of the gateway. No API key needed.",
+        "tags": [
+          "Account"
+        ],
+        "operationId": "status",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "example": "ok"
+                        },
+                        "uptime": {
+                          "type": "string"
+                        },
+                        "services": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/account": {
+      "get": {
+        "summary": "Get account",
+        "description": "Your profile and balances.",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "balance": {
+                          "type": "number"
+                        },
+                        "available_balance": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "operationId": "getAccount"
+      }
+    },
+    "/balance": {
+      "get": {
+        "summary": "Get balance",
+        "description": "Check what you can spend before ordering.",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Balance"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "operationId": "getBalance"
+      }
+    },
+    "/catalog": {
+      "get": {
+        "summary": "Get catalog",
+        "description": "Every active product and variant with your price, delivery mode and stock, in one response. Safe to refresh every few minutes.",
+        "tags": [
+          "Catalog"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "categories": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "products": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CatalogProduct"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Only products of this category."
+          }
+        ],
+        "operationId": "getCatalog"
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "List products",
+        "description": "Products with their variants (lighter than the catalog: no delivery mode or stock counts).",
+        "tags": [
+          "Catalog"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CatalogProduct"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "operationId": "listProducts"
+      }
+    },
+    "/products/{productId}/variants": {
+      "get": {
+        "summary": "List variants of a product",
+        "description": "Available variants with your price.",
+        "tags": [
+          "Catalog"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CatalogVariant"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "description": "Product ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "operationId": "listVariants"
+      }
+    },
+    "/products/purchase/{variantId}": {
+      "post": {
+        "summary": "Purchase a variant",
+        "description": "Buys `quantity` units of a variant. Your wallet is debited and, for allocated variants, your stock is consumed, in one transaction. Returns the order IDs; fetch the code with the retrieve endpoint. Include any `input_fields` listed in the catalog.",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "order_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "count": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "description": "Variant ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "quantity"
+                ],
+                "properties": {
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "example": 1
+                  },
+                  "key_id": {
+                    "type": "integer",
+                    "description": "Optional. A specific key to buy; if omitted one is assigned for you."
+                  }
+                },
+                "additionalProperties": true,
+                "description": "Plus any product-specific input fields (for example player_id)."
+              }
+            }
+          }
+        },
+        "operationId": "purchase"
+      }
+    },
+    "/products/order/{orderId}": {
+      "get": {
+        "summary": "Get an order",
+        "description": "Status and delivered code of one order.",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "description": "Order ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getOrder"
+      }
+    },
+    "/products/orders/retrieve": {
+      "post": {
+        "summary": "Retrieve several orders",
+        "description": "Status and codes for up to many orders in one call. Use this to poll.",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "order_ids"
+                ],
+                "properties": {
+                  "order_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "06061206",
+                      "47273778"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "retrieveOrders"
+      }
+    },
+    "/orders": {
+      "get": {
+        "summary": "List all orders",
+        "description": "Every order on your account across products and game top-ups, newest first. `type` is `product`, `freefire` or `pubg`.",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          },
+                          "order_id": {},
+                          "product_name": {
+                            "type": "string"
+                          },
+                          "variant_name": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "operationId": "listOrders"
+      }
+    },
+    "/stock": {
+      "get": {
+        "summary": "List your stock",
+        "description": "Your per-variant allocations.",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/ClientStock"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "product_id": {
+                                "type": "integer"
+                              },
+                              "product_name": {
+                                "type": "string"
+                              },
+                              "variant_name": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "operationId": "listStock"
+      }
+    },
+    "/stock/{variantId}": {
+      "get": {
+        "summary": "Get stock for a variant",
+        "description": "Your allocation for one variant. If you have none, `restricted` is `false`.",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "variant_id": {
+                          "type": "integer"
+                        },
+                        "restricted": {
+                          "type": "boolean"
+                        },
+                        "allocated": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "used": {
+                          "type": "integer"
+                        },
+                        "remaining": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "expires_at": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "description": "Variant ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "operationId": "getStock"
+      }
+    },
+    "/freefire/plans": {
+      "get": {
+        "summary": "List Free Fire plans",
+        "description": "Diamond plans with your price.",
+        "tags": [
+          "Free Fire"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "plan_id": {
+                            "type": "string"
+                          },
+                          "plan_name": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "operationId": "freefirePlans"
+      }
+    },
+    "/freefire/check-player": {
+      "post": {
+        "summary": "Verify a Free Fire player",
+        "description": "Returns the player's nickname so you can confirm before ordering.",
+        "tags": [
+          "Free Fire"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "player_id"
+                ],
+                "properties": {
+                  "player_id": {
+                    "type": "string",
+                    "example": "123456789"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "freefireCheck"
+      }
+    },
+    "/freefire/order": {
+      "post": {
+        "summary": "Order a Free Fire top-up",
+        "description": "Debits your wallet and starts the top-up.",
+        "tags": [
+          "Free Fire"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "plan_id",
+                  "player_id"
+                ],
+                "properties": {
+                  "plan_id": {
+                    "type": "string",
+                    "example": "100"
+                  },
+                  "player_id": {
+                    "type": "string",
+                    "example": "123456789"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "freefireOrder"
+      }
+    },
+    "/freefire/status/{trxId}": {
+      "get": {
+        "summary": "Free Fire order status",
+        "description": "Follow a top-up. Failed top-ups are refunded automatically.",
+        "tags": [
+          "Free Fire"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "parameters": [
+          {
+            "name": "trxId",
+            "in": "path",
+            "required": true,
+            "description": "Transaction ID returned by the order call",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "freefireStatus"
+      }
+    },
+    "/pubg/products": {
+      "get": {
+        "summary": "List PUBG Mobile products",
+        "description": "UC packs with your price and availability.",
+        "tags": [
+          "PUBG Mobile"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "uc_amount": {
+                            "type": "integer"
+                          },
+                          "available": {
+                            "type": "boolean"
+                          },
+                          "price": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "operationId": "pubgProducts"
+      }
+    },
+    "/pubg/check-player": {
+      "post": {
+        "summary": "Verify a PUBG player",
+        "description": "Returns the player's name so you can confirm before ordering.",
+        "tags": [
+          "PUBG Mobile"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "player_id"
+                ],
+                "properties": {
+                  "player_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "pubgCheck"
+      }
+    },
+    "/pubg/order": {
+      "post": {
+        "summary": "Order a PUBG top-up",
+        "description": "Debits your wallet and starts the top-up.",
+        "tags": [
+          "PUBG Mobile"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "product_id",
+                  "player_id"
+                ],
+                "properties": {
+                  "product_id": {
+                    "type": "integer"
+                  },
+                  "player_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "pubgOrder"
+      }
+    },
+    "/pubg/status/{orderId}": {
+      "get": {
+        "summary": "PUBG order status",
+        "description": "Follow a top-up.",
+        "tags": [
+          "PUBG Mobile"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "description": "Order ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "pubgStatus"
+      }
+    },
+    "/pubg/history": {
+      "get": {
+        "summary": "PUBG order history",
+        "description": "Your PUBG top-ups.",
+        "tags": [
+          "PUBG Mobile"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "operationId": "pubgHistory"
+      }
+    }
+  }
+}

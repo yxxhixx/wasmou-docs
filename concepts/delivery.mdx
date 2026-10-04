@@ -1,0 +1,31 @@
+---
+title: Delivery modes
+description: What happens after you buy, depending on the product.
+---
+
+Every variant in the catalog has a `delivery` field.
+
+| `delivery` | What it means | When you get the code |
+| --- | --- | --- |
+| `instant` | Fulfilled automatically by a supplier connection. | Within seconds. Poll the order until `status` is `completed`. |
+| `key` | Wasmou holds a pool of codes. One is assigned the moment you buy. | In the purchase flow. `in_stock` tells you how many are left. |
+| `manual` | A person delivers the product (account top-up, activation, subscription). | When the team marks it delivered. The order stays `processing` until then. |
+
+<Note>
+Most of the catalog is `manual` today. Wasmou is connecting more products to automatic suppliers over time, so check `delivery` again after each catalog refresh instead of hard-coding it.
+</Note>
+
+## Order statuses
+
+| Status | Meaning |
+| --- | --- |
+| `processing` | Accepted, waiting for fulfilment. |
+| `completed` | Delivered (instant and key products). When the product has a code, `has_key` is `true` and `key` holds it. |
+| `delivered` | Delivered by the team (manual products). `key` holds the code or details when there is one. |
+| `failed` | Could not be fulfilled. The amount is refunded to your wallet. |
+| `refunded` | Refunded after processing. |
+| `canceled` | Canceled by the team (manual products). Refunded. |
+
+A status other than `processing` is final.
+
+Poll `POST /products/orders/retrieve` every 10 to 30 seconds for `processing` orders, and stop when the status is final. See [Automate fulfilment](/guides/automate-fulfilment).

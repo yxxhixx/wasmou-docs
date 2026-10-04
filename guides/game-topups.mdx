@@ -1,0 +1,39 @@
+---
+title: Game top-ups
+description: Free Fire and PUBG Mobile: verify the player, then top up.
+---
+
+Both games follow the same three steps.
+
+<Steps>
+  <Step title="Verify the player ID">
+    Always check the ID first so the credit goes to the right account.
+    <CodeGroup>
+    ```bash Free Fire
+    curl -X POST https://api.wasmou.net/api/freefire/check-player \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"player_id": "123456789"}'
+    ```
+    ```bash PUBG Mobile
+    curl -X POST https://api.wasmou.net/api/pubg/check-player \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"player_id": "5123456789"}'
+    ```
+    </CodeGroup>
+  </Step>
+  <Step title="Order">
+    Free Fire takes a `plan_id` from `GET /freefire/plans`; PUBG takes a `product_id` from `GET /pubg/products`.
+    ```bash
+    curl -X POST https://api.wasmou.net/api/freefire/order \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"plan_id": "100", "player_id": "123456789"}'
+    ```
+  </Step>
+  <Step title="Follow the status">
+    `GET /freefire/status/{trxId}` or `GET /pubg/status/{orderId}`. Failed top-ups are refunded to your wallet automatically.
+  </Step>
+</Steps>
+
+<Note>
+Game top-ups are not part of the key-based catalog. They have their own plans and status endpoints, and they appear in `GET /orders` with `type` set to `freefire` or `pubg`.
+</Note>
