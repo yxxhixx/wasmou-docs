@@ -18,7 +18,7 @@ Prices follow our supplier automatically, so always read them from the [catalog]
 
 <Steps>
   <Step title="Find the product and its inputs">
-    In `GET /api/catalog`, products with `kind` other than `key` or `manual` list their `input_fields`. Each field has an `index`.
+    In `GET /api/catalog`, products with `kind` `topup`, `telegram_premium` or `telegram_stars` list their `input_fields`. Each field has an `index`.
     ```json
     { "id": 631, "name": "Mobile Legends (Global)", "kind": "topup", "requires_input": true,
       "input_fields": [

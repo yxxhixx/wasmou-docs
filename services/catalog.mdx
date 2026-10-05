@@ -62,7 +62,7 @@ The catalog is the starting point of an integration. One request returns everyth
 | `id` | Stable product ID. |
 | `name`, `description`, `image` | Display data. `description` is plain text. |
 | `category_id` | Matches an entry in `categories`. |
-| `kind` | `key`, `manual`, `giftcard`, `topup`, `telegram_premium` or `telegram_stars`. |
+| `kind` | `key`, `giftcard`, `topup`, `telegram_premium` or `telegram_stars`. |
 | `requires_input` | `true` when the buyer must provide extra data (a player ID, an email...). |
 | `input_fields` | The extra inputs to send with the purchase. Each has an `index`: send the value under that index as the key, for example `{"quantity": 1, "0": "123456789"}`. |
 | `variants` | The purchasable options. |
@@ -74,8 +74,8 @@ The catalog is the starting point of an integration. One request returns everyth
 | `id` | Stable variant ID. Use it in `POST /products/purchase/{variantId}`. |
 | `name` | For example `60 UC` or `1 Year`. |
 | `price` | **Your** price in DZD, with your reseller terms applied. |
-| `delivery` | `instant`, `topup`, `key` or `manual`. See [delivery modes](/concepts/delivery). |
-| `in_stock` | Units left for `key` variants. `null` for `instant` and `manual`, which are not counted. |
+| `delivery` | `instant`, `topup` or `key`. See [delivery modes](/concepts/delivery). |
+| `in_stock` | Units left for `key` variants. `null` for `instant` and `topup`, which are not counted. |
 | `available` | `false` when a `key` variant is out of stock. |
 | `client_stock` | Present only if you have an [allocation](/concepts/stock) for this variant. |
 

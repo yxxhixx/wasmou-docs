@@ -149,10 +149,10 @@ The response is an array of order objects in the same format as a single order.
 | --- | --- |
 | `processing` | Accepted, waiting for fulfilment. |
 | `completed` | Fulfilled; the key is available when the product has one. |
-| `delivered` | Delivered by the team (manual products). |
+| `delivered` | Delivered. Treat it like `completed`. |
 | `failed` | Could not be fulfilled; refunded. |
 | `refunded` | Refunded. |
-| `canceled` | Canceled (manual products); refunded. |
+| `canceled` | Canceled; refunded. |
 
 If `has_key` is `false`, poll the endpoint until the key becomes available.
 
@@ -186,6 +186,6 @@ Some products need extra data, for example game account details. Read the `input
 
 ## Best practices
 
-- Always read `delivery` first ([delivery modes](/concepts/delivery)): manual products are not instant.
+- Read `delivery` and `available` first ([delivery modes](/concepts/delivery)).
 - Check `available_balance` before large batches.
 - Poll `orders/retrieve` for `processing` orders and stop when the status is final.

@@ -3,7 +3,7 @@ title: "Automate fulfilment"
 description: "A reliable purchase-and-deliver loop that handles every delivery mode."
 ---
 
-The same loop works for `instant`, `key` and `manual` variants. Only the waiting time differs.
+The same loop works for every variant. Only the waiting time differs.
 
 <Steps>
   <Step title="Buy">
@@ -49,5 +49,5 @@ async function waitForDelivery(orderIds, { every = 15_000, timeout = 30 * 60_000
 ## Good habits
 
 - **Never retry a purchase blindly.** If the request timed out, look at `GET /orders` first to see whether it went through.
-- **Stop polling** a manual order after your own deadline and check again later. Manual orders can take a while.
+- **Stop polling** after your own deadline (for example 15 minutes) and check again later. Some top-ups take a few minutes when the game servers are busy.
 - **Log the order ID** next to your own order reference so support can find it quickly.

@@ -108,14 +108,13 @@
             "enum": [
               "instant",
               "topup",
-              "key",
-              "manual"
+              "key"
             ]
           },
           "in_stock": {
             "type": "integer",
             "nullable": true,
-            "description": "Units left for key-based variants; null for instant and manual."
+            "description": "Units left for key-based variants; null for instant and topup."
           },
           "available": {
             "type": "boolean"
@@ -179,7 +178,6 @@
             "type": "string",
             "enum": [
               "key",
-              "manual",
               "giftcard",
               "topup",
               "telegram_premium",
@@ -212,7 +210,7 @@
               "refunded",
               "canceled"
             ],
-            "description": "Final unless `processing`. Manual products use `delivered` / `canceled`."
+            "description": "Final unless `processing`."
           },
           "key": {
             "type": "string",
@@ -878,7 +876,7 @@
     "/orders": {
       "get": {
         "summary": "List all orders",
-        "description": "Every order on your account (gift cards, game top-ups, keys and manual products), newest first.",
+        "description": "Every order on your account (gift cards, game top-ups and keys), newest first.",
         "tags": [
           "Orders"
         ],

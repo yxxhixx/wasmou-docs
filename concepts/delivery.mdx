@@ -10,10 +10,9 @@ Every variant in the catalog has a `delivery` field.
 | `instant` | Gift cards and vouchers fulfilled automatically by our supplier. | Within seconds. Poll the order until `status` is `completed`. |
 | `topup` | Game credit or Telegram Premium / Stars sent straight to the account you name. | Within seconds to a few minutes. No code: the order becomes `completed` when delivered. |
 | `key` | Wasmou holds a pool of codes. One is assigned the moment you buy. | In the purchase flow. `in_stock` tells you how many are left. |
-| `manual` | A person delivers the product (account top-up, activation, subscription). | When the team marks it delivered. The order stays `processing` until then. |
 
 <Note>
-The catalog now holds hundreds of gift cards and game top-ups delivered automatically. A few products stay `manual`. Check `delivery` after each catalog refresh instead of hard-coding it: a product can switch between `instant` and `manual` when our supplier is out of stock.
+Every product is delivered automatically. Check `delivery` and `available` after each catalog refresh instead of hard-coding them: a product can be temporarily unavailable when our supplier is out of stock.
 </Note>
 
 ## Order statuses
@@ -22,10 +21,10 @@ The catalog now holds hundreds of gift cards and game top-ups delivered automati
 | --- | --- |
 | `processing` | Accepted, waiting for fulfilment. |
 | `completed` | Delivered (instant and key products). When the product has a code, `has_key` is `true` and `key` holds it. |
-| `delivered` | Delivered by the team (manual products). `key` holds the code or details when there is one. |
+| `delivered` | Delivered. `key` holds the code or details when there is one. Treat it like `completed`. |
 | `failed` | Could not be fulfilled. The amount is refunded to your wallet. |
 | `refunded` | Refunded after processing. |
-| `canceled` | Canceled by the team (manual products). Refunded. |
+| `canceled` | Canceled. The amount is refunded to your wallet. |
 
 A status other than `processing` is final.
 
