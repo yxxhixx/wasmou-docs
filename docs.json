@@ -58,9 +58,7 @@
               "services/products",
               "services/orders",
               "services/stock",
-              "services/freefire",
-              "services/pubg",
-              "services/beinsports"
+              "services/topups"
             ]
           },
           {
@@ -99,7 +97,8 @@
             "pages": [
               "GET /catalog",
               "GET /products",
-              "GET /products/{productId}/variants"
+              "GET /products/{productId}/variants",
+              "POST /catalog/{id}/verify"
             ]
           },
           {
@@ -118,36 +117,6 @@
             "pages": [
               "GET /stock",
               "GET /stock/{variantId}"
-            ]
-          },
-          {
-            "group": "Free Fire",
-            "openapi": "openapi.json",
-            "pages": [
-              "GET /freefire/plans",
-              "POST /freefire/check-player",
-              "POST /freefire/order",
-              "GET /freefire/status/{trxId}"
-            ]
-          },
-          {
-            "group": "PUBG Mobile",
-            "openapi": "openapi.json",
-            "pages": [
-              "GET /pubg/products",
-              "POST /pubg/check-player",
-              "POST /pubg/order",
-              "GET /pubg/status/{orderId}",
-              "GET /pubg/history"
-            ]
-          },
-          {
-            "group": "BeIN Sports",
-            "openapi": "openapi.json",
-            "pages": [
-              "GET /beinsports/products",
-              "POST /beinsports/order",
-              "GET /beinsports/order/{orderId}"
             ]
           }
         ]

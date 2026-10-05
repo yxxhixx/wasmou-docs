@@ -107,6 +107,7 @@
             "type": "string",
             "enum": [
               "instant",
+              "topup",
               "key",
               "manual"
             ]
@@ -148,14 +149,43 @@
             "type": "boolean"
           },
           "input_fields": {
-            "type": "object",
-            "description": "Extra fields to send with the purchase when requires_input is true."
+            "type": "array",
+            "description": "Extra inputs to send with the purchase when requires_input is true. Send each value in the purchase body under its `index` as the key.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "index": {
+                  "type": "integer"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "variants": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CatalogVariant"
             }
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "key",
+              "manual",
+              "giftcard",
+              "topup",
+              "telegram_premium",
+              "telegram_stars"
+            ],
+            "description": "How the product is fulfilled. Top-up kinds send the credit to the player or Telegram username given in the inputs."
           }
         }
       },
@@ -848,7 +878,7 @@
     "/orders": {
       "get": {
         "summary": "List all orders",
-        "description": "Every order on your account across products and game top-ups, newest first. `type` is `product`, `freefire` or `pubg`.",
+        "description": "Every order on your account (gift cards, game top-ups, keys and manual products), newest first.",
         "tags": [
           "Orders"
         ],
@@ -1084,800 +1114,50 @@
         "operationId": "getStock"
       }
     },
-    "/freefire/plans": {
-      "get": {
-        "summary": "List Free Fire plans",
-        "description": "Diamond plans with your price.",
-        "tags": [
-          "Free Fire"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "plan_id": {
-                            "type": "string"
-                          },
-                          "plan_name": {
-                            "type": "string"
-                          },
-                          "price": {
-                            "type": "number"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        },
-        "operationId": "freefirePlans"
-      }
-    },
-    "/freefire/check-player": {
+    "/catalog/{id}/verify": {
       "post": {
-        "summary": "Verify a Free Fire player",
-        "description": "Returns the player's nickname so you can confirm before ordering.",
+        "summary": "Verify a player ID",
+        "description": "Checks a game player ID with the supplier before you order a top-up. Send the inputs keyed by their `index` (see `input_fields` in the catalog). Only products with `kind` `topup` are supported.",
         "tags": [
-          "Free Fire"
+          "Catalog"
         ],
         "security": [
           {
             "ApiKey": []
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "player_id"
-                ],
-                "properties": {
-                  "player_id": {
-                    "type": "string",
-                    "example": "123456789"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "freefireCheck"
-      }
-    },
-    "/freefire/order": {
-      "post": {
-        "summary": "Order a Free Fire top-up",
-        "description": "Debits your wallet and starts the top-up.",
-        "tags": [
-          "Free Fire"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "403": {
-            "description": "Insufficient balance (or IP not allowed)"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "plan_id",
-                  "player_id"
-                ],
-                "properties": {
-                  "plan_id": {
-                    "type": "string",
-                    "example": "100"
-                  },
-                  "player_id": {
-                    "type": "string",
-                    "example": "123456789"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "freefireOrder"
-      }
-    },
-    "/freefire/status/{trxId}": {
-      "get": {
-        "summary": "Free Fire order status",
-        "description": "Follow a top-up. Failed top-ups are refunded automatically.",
-        "tags": [
-          "Free Fire"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        },
+        "operationId": "verifyPlayer",
         "parameters": [
           {
-            "name": "trxId",
+            "name": "id",
             "in": "path",
             "required": true,
-            "description": "Transaction ID returned by the order call",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "operationId": "freefireStatus"
-      }
-    },
-    "/pubg/products": {
-      "get": {
-        "summary": "List PUBG Mobile products",
-        "description": "UC packs with your price and availability.",
-        "tags": [
-          "PUBG Mobile"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "uc_amount": {
-                            "type": "integer"
-                          },
-                          "available": {
-                            "type": "boolean"
-                          },
-                          "price": {
-                            "type": "number"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        },
-        "operationId": "pubgProducts"
-      }
-    },
-    "/pubg/check-player": {
-      "post": {
-        "summary": "Verify a PUBG player",
-        "description": "Returns the player's name so you can confirm before ordering.",
-        "tags": [
-          "PUBG Mobile"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "player_id"
-                ],
-                "properties": {
-                  "player_id": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "pubgCheck"
-      }
-    },
-    "/pubg/order": {
-      "post": {
-        "summary": "Order a PUBG top-up",
-        "description": "Debits your wallet and starts the top-up.",
-        "tags": [
-          "PUBG Mobile"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "403": {
-            "description": "Insufficient balance (or IP not allowed)"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "product_id",
-                  "player_id"
-                ],
-                "properties": {
-                  "product_id": {
-                    "type": "integer"
-                  },
-                  "player_id": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "pubgOrder"
-      }
-    },
-    "/pubg/status/{orderId}": {
-      "get": {
-        "summary": "PUBG order status",
-        "description": "Follow a top-up.",
-        "tags": [
-          "PUBG Mobile"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        },
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
-            "description": "Order ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "operationId": "pubgStatus"
-      }
-    },
-    "/pubg/history": {
-      "get": {
-        "summary": "PUBG order history",
-        "description": "Your PUBG top-ups.",
-        "tags": [
-          "PUBG Mobile"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": true
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        },
-        "operationId": "pubgHistory"
-      }
-    },
-    "/beinsports/products": {
-      "get": {
-        "summary": "List BeIN Sports products",
-        "tags": [
-          "BeIN Sports"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "operationId": "beinProducts",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "price": {
-                            "type": "number"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key"
-          },
-          "403": {
-            "description": "Insufficient balance or IP not allowed"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        }
-      }
-    },
-    "/beinsports/order": {
-      "post": {
-        "summary": "Order a BeIN Sports subscription",
-        "tags": [
-          "BeIN Sports"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "operationId": "beinOrder",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "variant_id",
-                  "sc_id",
-                  "client_name"
-                ],
-                "properties": {
-                  "variant_id": {
-                    "type": "integer"
-                  },
-                  "sc_id": {
-                    "type": "string",
-                    "description": "Smart card ID, 8-16 digits.",
-                    "example": "12345678"
-                  },
-                  "client_name": {
-                    "type": "string",
-                    "minLength": 2,
-                    "maxLength": 100
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "order_id": {
-                          "type": "integer"
-                        },
-                        "status": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key"
-          },
-          "403": {
-            "description": "Insufficient balance or IP not allowed"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        }
-      }
-    },
-    "/beinsports/order/{orderId}": {
-      "get": {
-        "summary": "BeIN Sports order status",
-        "tags": [
-          "BeIN Sports"
-        ],
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "operationId": "beinStatus",
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
+            "description": "Product ID",
             "schema": {
               "type": "integer"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "example": {
+                  "0": "123456789",
+                  "1": "2001"
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Verification result",
             "content": {
               "application/json": {
                 "schema": {
@@ -1885,25 +1165,37 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "example": "success"
+                      "enum": [
+                        "valid",
+                        "invalid",
+                        "unknown"
+                      ]
                     },
-                    "message": {
-                      "type": "string"
+                    "player_name": {
+                      "type": "string",
+                      "nullable": true
                     },
-                    "data": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "region": {
+                      "type": "string",
+                      "nullable": true
                     }
                   }
                 }
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid API key"
+          "422": {
+            "description": "A required input is missing"
           },
-          "403": {
-            "description": "Insufficient balance or IP not allowed"
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "429": {
             "description": "Rate limit exceeded"

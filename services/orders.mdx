@@ -15,32 +15,6 @@ Get your order history from all services in one endpoint, newest first.
   "message": "Orders retrieved",
   "data": [
     {
-      "type": "freefire",
-      "order_id": 100,
-      "trx_id": "550e8400-e29b-41d4-a716-446655440000",
-      "plan_name": "100 Diamonds",
-      "price": 1000.00,
-      "status": "success",
-      "created_at": "2026-10-04T10:30:00.000000Z"
-    },
-    {
-      "type": "pubg",
-      "order_id": 200,
-      "external_order_id": "G4C123456",
-      "product_name": "60 UC",
-      "price": 265.00,
-      "status": "accept",
-      "created_at": "2026-10-04T09:15:00.000000Z"
-    },
-    {
-      "type": "beinsports",
-      "order_id": 400,
-      "offer_name": "BeIN Sports 1 Month",
-      "price": 1500.00,
-      "status": "pending",
-      "created_at": "2026-10-03T12:00:00.000000Z"
-    },
-    {
       "type": "product",
       "order_id": "1234567890123456789",
       "product_name": "Steam Wallet",
@@ -57,21 +31,9 @@ Get your order history from all services in one endpoint, newest first.
 
 | `type` | Description | Status values |
 | --- | --- | --- |
-| `freefire` | Free Fire top-ups | `pending`, `success`, `failed` |
-| `pubg` | PUBG Mobile top-ups | `wait`, `accept`, `reject` |
-| `beinsports` | BeIN Sports subscriptions | `pending`, `completed`, `failed` |
 | `product` | Catalog products | `processing`, `completed`, `delivered`, `failed`, `refunded`, `canceled` |
 
 ## Fields by type
-
-### Free Fire
-`trx_id` transaction ID · `plan_name` diamond package
-
-### PUBG
-`external_order_id` Gift4Card order ID · `product_name` UC package
-
-### BeIN Sports
-`offer_name` subscription package
 
 ### Product
 `product_name`, `variant_name`. To read the delivered code, call [`GET /api/products/order/{orderId}`](/services/products#4-retrieve-order-keys).

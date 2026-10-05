@@ -1,0 +1,56 @@
+---
+title: "Game top-ups and Telegram"
+description: "Top up Free Fire, PUBG Mobile, Mobile Legends and more by player ID, or gift Telegram Premium and Stars."
+---
+
+Top-ups are regular catalog products with `kind` set to `topup`, `telegram_premium` or `telegram_stars`. The credit is sent straight to the player's account or Telegram username: there is no code to retrieve. They use the same purchase and order endpoints as every other product.
+
+| Product | `kind` | Inputs |
+| --- | --- | --- |
+| Free Fire (MENA), PUBG Mobile (Auto), Delta Force, Whiteout Survival | `topup` | `Player ID` |
+| Mobile Legends (Global) | `topup` | `Player ID`, `Server ID` |
+| Genshin Impact (Global) | `topup` | `Player ID`, `Server` |
+| PUBG: New State | `topup` | `Account ID` |
+| Telegram Premium (3, 6, 12 months) | `telegram_premium` | `Telegram username` |
+| Telegram Stars (50 to 10,000) | `telegram_stars` | `Telegram username` |
+
+Prices follow our supplier automatically, so always read them from the [catalog](/services/catalog) instead of hard-coding them.
+
+<Steps>
+  <Step title="Find the product and its inputs">
+    In `GET /api/catalog`, products with `kind` other than `key` or `manual` list their `input_fields`. Each field has an `index`.
+    ```json
+    { "id": 631, "name": "Mobile Legends (Global)", "kind": "topup", "requires_input": true,
+      "input_fields": [
+        { "index": 0, "type": "text", "label": "Player ID" },
+        { "index": 1, "type": "text", "label": "Server ID" } ] }
+    ```
+  </Step>
+  <Step title="Verify the player (optional but recommended)">
+    Send the inputs keyed by `index`. Games that support verification return the player name.
+    ```bash
+    curl -X POST https://api.wasmou.net/api/catalog/631/verify \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"0": "123456789", "1": "2001"}'
+    ```
+    ```json Response
+    { "status": "valid", "player_name": "Nickname", "region": "EUROPE" }
+    ```
+    `status` is `valid`, `invalid`, or `unknown` when verification is unavailable (you can still order).
+  </Step>
+  <Step title="Order">
+    Use the normal purchase endpoint with the inputs keyed by `index`.
+    ```bash
+    curl -X POST https://api.wasmou.net/api/products/purchase/4520 \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"quantity": 1, "0": "123456789", "1": "2001"}'
+    ```
+  </Step>
+  <Step title="Follow the order">
+    Poll `POST /api/products/orders/retrieve`. The order is `processing` for a few seconds up to a few minutes, then `completed`. If the supplier cannot deliver (for example a wrong player ID), the order becomes `failed` and the full amount is refunded to your wallet automatically.
+  </Step>
+</Steps>
+
+<Note>
+`quantity` above 1 places one separate top-up per unit for the same player. Check the player ID twice: top-ups cannot be recalled once delivered.
+</Note>

@@ -7,12 +7,13 @@ Every variant in the catalog has a `delivery` field.
 
 | `delivery` | What it means | When you get the code |
 | --- | --- | --- |
-| `instant` | Fulfilled automatically by a supplier connection. | Within seconds. Poll the order until `status` is `completed`. |
+| `instant` | Gift cards and vouchers fulfilled automatically by our supplier. | Within seconds. Poll the order until `status` is `completed`. |
+| `topup` | Game credit or Telegram Premium / Stars sent straight to the account you name. | Within seconds to a few minutes. No code: the order becomes `completed` when delivered. |
 | `key` | Wasmou holds a pool of codes. One is assigned the moment you buy. | In the purchase flow. `in_stock` tells you how many are left. |
 | `manual` | A person delivers the product (account top-up, activation, subscription). | When the team marks it delivered. The order stays `processing` until then. |
 
 <Note>
-Most of the catalog is `manual` today. Wasmou is connecting more products to automatic suppliers over time, so check `delivery` again after each catalog refresh instead of hard-coding it.
+The catalog now holds hundreds of gift cards and game top-ups delivered automatically. A few products stay `manual`. Check `delivery` after each catalog refresh instead of hard-coding it: a product can switch between `instant` and `manual` when our supplier is out of stock.
 </Note>
 
 ## Order statuses

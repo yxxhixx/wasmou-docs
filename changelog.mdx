@@ -3,6 +3,17 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="October 2026" description="Instant supplier catalog and game top-ups">
+  **New**
+  - **Hundreds of gift cards delivered instantly**, with names and prices that follow our supplier automatically.
+  - **Game top-ups and Telegram**: Free Fire (MENA), PUBG Mobile (Auto), Mobile Legends (Global), Delta Force, Genshin Impact (Global), PUBG: New State, Whiteout Survival, Telegram Premium and Telegram Stars. They are catalog products with a `kind` field, ordered with the normal purchase endpoint. See [Game top-ups and Telegram](/services/topups).
+  - `POST /catalog/{id}/verify` checks a game player ID before you pay.
+  - Catalog products have a new `kind` field, `delivery` can be `topup`, and `input_fields` is now a list with an `index` per field (send the value under that index in the purchase body).
+
+  **Removed**
+  - The dedicated Free Fire, PUBG (Gift4Card) and BeIN Sports endpoints (`/freefire/*`, `/pubg/*`, `/beinsports/*`) and their order types in `GET /orders`. Use the catalog and `POST /products/purchase/{variantId}` instead. Their old order history is no longer available through the API.
+</Update>
+
 <Update label="October 2026" description="Wasmou V3">
   **New**
   - `GET /catalog`: the full catalog with prices, delivery mode, stock and required inputs in one call.

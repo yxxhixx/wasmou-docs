@@ -105,8 +105,7 @@ if (!response.ok) {
 
 ### 2. Validate before you submit
 
-- Free Fire: `POST /api/freefire/check-player`
-- PUBG Mobile: `POST /api/pubg/check-player`
+- Game top-ups: `POST /api/catalog/{id}/verify` checks the player ID before you pay.
 
 ### 3. Handle timeouts safely
 
@@ -135,7 +134,7 @@ try {
   await placeOrder(payload);
 } catch (error) {
   console.error("Order failed", {
-    endpoint: "/api/freefire/order",
+    endpoint: "/api/products/purchase/4520",
     request: payload,        // never log your API key
     error: error.message,
     timestamp: new Date().toISOString(),
