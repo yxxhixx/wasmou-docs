@@ -1,0 +1,68 @@
+---
+title: "WordPress / WooCommerce plugin"
+description: "Sell Wasmou products in your own WooCommerce store. Import in one click, prices and stock stay in sync, codes are delivered automatically."
+---
+
+**Wasmou for WooCommerce** turns your WordPress shop into a Wasmou reseller store. Your customers pay you, the plugin buys from your Wasmou wallet and delivers the code, subscription or top-up to your customer. No coding.
+
+<Card title="Download Wasmou for WooCommerce" icon="download" href="https://myapp.wasmou.net/downloads/wasmou-for-woocommerce.zip">
+  Version 1.0.0 · free · English, Français, العربية
+</Card>
+
+## Requirements
+
+- WordPress 6.0+ and WooCommerce 7.0+ (PHP 7.4 or newer)
+- A Wasmou account with an API key ([get it here](https://myapp.wasmou.net/app/api-access)) and funds in your wallet
+- Compatible with High-Performance Order Storage (HPOS) and the block-based Cart and Checkout
+
+## Install in 3 steps
+
+<Steps>
+  <Step title="Upload and activate">
+    WordPress admin > **Plugins > Add New > Upload Plugin**, choose the zip, then **Activate**.
+  </Step>
+  <Step title="Connect your Wasmou account">
+    Open **WooCommerce > Wasmou**, paste your API key and press **Test connection**. You should see your wallet balance.
+  </Step>
+  <Step title="Import and sell">
+    Open the **Import products** tab, pick what you want to sell and press **Import selected**. Products arrive with images, descriptions, warranty and activation guides.
+  </Step>
+</Steps>
+
+## Pricing
+
+Wasmou prices are in Algerian dinar. In the **Pricing** tab choose your margin (a percentage or a fixed amount), your store currency and exchange rate, and a rounding rule. Prices are recalculated at every sync and never drop below your cost.
+
+## How orders are delivered
+
+1. A customer pays you in WooCommerce.
+2. The plugin purchases each Wasmou item from your wallet. Every purchase carries an `Idempotency-Key`, so a retry never buys twice.
+3. As soon as Wasmou has the code, it appears on the order page, in My Account and in the order e-mail, with a **Copy** button and the activation guide.
+4. The order is marked **Completed** (you can turn this off).
+
+Products that are added to the customer's own account (subscriptions) ask for the details they need at checkout, for example the e-mail of the account. They are activated shortly after, and the page tells the customer so.
+
+## Safety built in
+
+- **Price protection**: if the Wasmou price rose above what the customer would pay, the cart asks them to review it instead of selling at a loss.
+- **Wallet check** at checkout, with an e-mail alert when your balance is low.
+- **No double purchases**: concurrent requests, crashes and network errors can not buy the same item twice.
+- **If Wasmou can not deliver**, the order is put **On hold** and you are e-mailed, or the failed items are refunded automatically through your payment gateway.
+- Stock is mirrored from Wasmou, so you never sell what is out of stock.
+
+## Keep prices and stock fresh
+
+The plugin syncs every 15 minutes by default (**Delivery** tab). Re-syncing only touches prices, stock and plans: your edits to titles, descriptions and categories are kept. On low-traffic sites, add a real cron job that calls `wp-cron.php` every minute for the fastest delivery.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| "API key rejected" | Check the key. If you restricted it to IP addresses, allow your hosting server IP or clear the list. |
+| Orders stay **On hold** | Open the order: the **Wasmou** box shows the reason and a **Retry failed items** button. Most often the wallet needs funds. |
+| Products show out of stock | They are out of stock at Wasmou. Run **Sync prices and stock now** in the **Status** tab. |
+| Delivery is slow | Make sure WP-Cron runs (see **Status** tab). |
+
+## For developers
+
+The plugin uses the public API only: [catalog](/services/catalog), [account balance](/services/account), [purchase](/services/products) and [order retrieval](/services/orders). It sends an `Idempotency-Key` header on every purchase (see [Automate fulfilment](/guides/automate-fulfilment)).

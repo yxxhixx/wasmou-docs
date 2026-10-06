@@ -3,6 +3,13 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="October 2026 (3)" description="WooCommerce plugin and safe purchase retries">
+  **New**
+  - **Wasmou for WooCommerce**: a free WordPress plugin to sell Wasmou products in your own store, with one-click import, automatic prices and stock, and automatic delivery of codes. See [WordPress / WooCommerce plugin](/guides/woocommerce-plugin).
+  - `POST /products/purchase/{variantId}` accepts an `Idempotency-Key` header. A retry with the same key returns the original answer and never charges twice.
+  - `GET /catalog` accepts `lang` (`en`, `fr`, `ar`) and returns a `guide` (activation steps) per product, plus `async` and `warranty` per variant.
+</Update>
+
 <Update label="October 2026 (2)" description="Simpler delivery model">
   **Changed**
   - Every product is now delivered automatically. The catalog `delivery` field is `instant`, `topup` or `key`; the `manual` value no longer appears.

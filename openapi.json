@@ -121,6 +121,24 @@
           },
           "client_stock": {
             "$ref": "#/components/schemas/ClientStock"
+          },
+          "async": {
+            "type": "boolean",
+            "description": "True when the product is activated on the customer account after the order (subscriptions): the order stays `processing` for a while."
+          },
+          "warranty": {
+            "type": "object",
+            "nullable": true,
+            "description": "Warranty of the variant, or null.",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "days": {
+                "type": "integer",
+                "nullable": true
+              }
+            }
           }
         }
       },
@@ -184,6 +202,11 @@
               "telegram_stars"
             ],
             "description": "How the product is fulfilled. Top-up kinds send the credit to the player or Telegram username given in the inputs."
+          },
+          "guide": {
+            "type": "string",
+            "nullable": true,
+            "description": "Activation steps for the customer, in the language of `lang`."
           }
         }
       },
@@ -494,6 +517,20 @@
               "type": "integer"
             },
             "description": "Only products of this category."
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language of the activation `guide`.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "en",
+                "fr",
+                "ar"
+              ]
+            }
           }
         ],
         "operationId": "getCatalog"
@@ -697,6 +734,17 @@
             "description": "Variant ID",
             "schema": {
               "type": "integer"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "A unique value (8 to 128 characters) for this purchase. Retrying the same request with the same key returns the original answer (header `Idempotent-Replay: true`) and never charges twice. Reusing a key with a different body returns 422. Keys are remembered for 24 hours.",
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
             }
           }
         ],
