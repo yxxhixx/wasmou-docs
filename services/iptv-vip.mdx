@@ -1,0 +1,51 @@
+---
+title: "IPTV and VIP Server"
+description: "Sell IPTV subscriptions and activate VIP Server (sports and live TV) on a device serial."
+---
+
+Both are regular catalog products ordered with the normal purchase endpoint. They are delivered asynchronously, so the order stays `processing` for a short while.
+
+| Product | `kind` | Inputs | `async` |
+| --- | --- | --- | --- |
+| IPTV subscriptions | `iptv` | none for code plans, details for request plans | `true` for plans that are set up for you |
+| VIP Server activation | `vip_server` | `Device serial` (index `0`) | `true` |
+
+Prices are in DZD and are your price, so always read them from the [catalog](/services/catalog).
+
+## IPTV
+
+Find products with `kind` `iptv` in `GET /api/catalog`. Order a variant with `POST /api/products/purchase/{variantId}`. Plans that deliver a code or login return it in the order as soon as it is ready. Plans with `async: true` are set up after the order: poll `POST /api/products/orders/retrieve` until the order is `completed`. If it cannot be delivered the order becomes `failed` and your wallet is refunded in full.
+
+## VIP Server
+
+<Steps>
+  <Step title="Check the serial">
+    Returns the subscriptions found on the device and the packages you can activate, with your price.
+    ```bash
+    curl -X POST https://api.wasmou.net/api/vip-server/check \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"serial": "210614477607"}'
+    ```
+    ```json Response
+    { "status": "success", "data": { "has_subscription": true, "services": [
+      { "name": "Example", "active": true, "days_left": 12, "expiry": "2026-10-23",
+        "packages": [ { "variant_id": 8123, "name": "1 month", "duration": "1M", "price": 250, "currency": "DZD" } ] } ] } }
+    ```
+    An invalid serial returns `422`. The call is limited to 12 per minute.
+  </Step>
+  <Step title="Order a package">
+    Use the `variant_id` and send the serial under index `0`.
+    ```bash
+    curl -X POST https://api.wasmou.net/api/products/purchase/8123 \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"quantity": 1, "0": "210614477607"}'
+    ```
+  </Step>
+  <Step title="Follow the order">
+    Poll `POST /api/products/orders/retrieve`. It becomes `completed` once the subscription is activated. If activation fails the order is `failed` and refunded automatically.
+  </Step>
+</Steps>
+
+<Note>
+Check the serial again right before ordering: packages and prices depend on the device. An activation cannot be reversed, and the same order is never sent twice.
+</Note>

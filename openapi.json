@@ -199,7 +199,9 @@
               "giftcard",
               "topup",
               "telegram_premium",
-              "telegram_stars"
+              "telegram_stars",
+              "iptv",
+              "vip_server"
             ],
             "description": "How the product is fulfilled. Top-up kinds send the credit to the player or Telegram username given in the inputs."
           },
@@ -1232,6 +1234,134 @@
           },
           "422": {
             "description": "A required input is missing"
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/vip-server/check": {
+      "post": {
+        "summary": "Check a VIP Server serial",
+        "description": "Lists the VIP Server (sports and live TV) subscriptions found on a device serial and the packages you can activate, at your price. Order a package with `POST /products/purchase/{variantId}` using the returned `variant_id` and the serial under input index `0`. Packages are only valid for this serial: check again before each order.",
+        "tags": [
+          "Catalog"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "checkVipServer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "serial"
+                ],
+                "properties": {
+                  "serial": {
+                    "type": "string",
+                    "example": "210614477607",
+                    "description": "Device serial, 4 to 40 letters, digits, - or _"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Serial status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string"
+                        },
+                        "has_subscription": {
+                          "type": "boolean"
+                        },
+                        "services": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "active": {
+                                "type": "boolean"
+                              },
+                              "days_left": {
+                                "type": "integer",
+                                "nullable": true
+                              },
+                              "expiry": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "packages": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "variant_id": {
+                                      "type": "integer"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "duration": {
+                                      "type": "string"
+                                    },
+                                    "price": {
+                                      "type": "number"
+                                    },
+                                    "currency": {
+                                      "type": "string",
+                                      "example": "DZD"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid serial"
           },
           "401": {
             "description": "Missing or invalid API key",

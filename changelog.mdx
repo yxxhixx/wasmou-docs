@@ -3,6 +3,15 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="October 2026 (4)" description="IPTV and VIP Server">
+  **New**
+  - **IPTV subscriptions** are in the catalog with `kind` `iptv`.
+  - **VIP Server** activation on a device serial (`kind` `vip_server`). `POST /vip-server/check` lists the packages available for a serial at your price. See [IPTV and VIP Server](/services/iptv-vip).
+
+  **Changed**
+  - Plans that are set up after the order (IPTV request plans, VIP Server) now report `async: true` in the catalog.
+</Update>
+
 <Update label="October 2026 (3)" description="WooCommerce plugin and safe purchase retries">
   **New**
   - **Wasmou for WooCommerce**: a free WordPress plugin to sell Wasmou products in your own store, with one-click import, automatic prices and stock, and automatic delivery of codes. See [WordPress / WooCommerce plugin](/guides/woocommerce-plugin).

@@ -58,7 +58,8 @@
               "services/products",
               "services/orders",
               "services/stock",
-              "services/topups"
+              "services/topups",
+              "services/iptv-vip"
             ]
           },
           {
@@ -99,7 +100,8 @@
               "GET /catalog",
               "GET /products",
               "GET /products/{productId}/variants",
-              "POST /catalog/{id}/verify"
+              "POST /catalog/{id}/verify",
+              "POST /vip-server/check"
             ]
           },
           {
