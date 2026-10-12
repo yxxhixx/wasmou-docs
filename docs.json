@@ -65,6 +65,7 @@
           {
             "group": "Guides",
             "pages": [
+              "guides/try-the-demo",
               "guides/sync-catalog",
               "guides/automate-fulfilment",
               "guides/game-topups",

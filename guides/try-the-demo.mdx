@@ -1,0 +1,28 @@
+---
+title: "Try the demo"
+description: "Test the app and the API with a fake wallet before you add any funds."
+---
+
+You can try Wasmou without an account or any funds. Open a demo account for the level you want to see (Base, Dealer, Reseller or VIP) from [wasmou.app](https://wasmou.app/#demo). Each visitor gets a private sandbox that resets daily.
+
+<Warning>
+Everything in the demo is fake: prices, wallet balance and orders. Demo prices are not our real prices, and a demo order never reaches a supplier. Real prices are shown only in your own account.
+</Warning>
+
+## Test the API
+
+Every demo account has its own API key (open **API access** in the demo). It works against the normal endpoints, so you can build and test your integration the same way as in production.
+
+```bash
+curl https://api.wasmou.net/api/balance -H "X-Api-Key: YOUR_DEMO_KEY"
+```
+
+- `GET /catalog`, `GET /products`, the balance and the order endpoints answer as usual.
+- `POST /products/purchase/{variantId}` is simulated: the fake wallet is charged and the order completes at once with a code that starts with `DEMO-`.
+- `POST /catalog/{id}/verify` and `POST /vip-server/check` return sample answers.
+
+When you are ready, create a free account and replace the demo key with your own.
+
+## Limits
+
+Deposits, account changes, tickets and key regeneration are disabled in the demo, and demo accounts are deleted after 24 hours.
