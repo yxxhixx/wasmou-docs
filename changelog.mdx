@@ -3,6 +3,11 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="October 2026 (7)" description="Flexy bulk">
+  **New**
+  - **Bulk top-ups**: `POST /flexy/bulk` sends up to 100 numbers in one call, processed in the background with a per-line status and refund. Poll `GET /flexy/bulk/{id}`; use `dry_run` to price a list first. See [Flexy](/services/flexy).
+</Update>
+
 <Update label="October 2026 (6)" description="Flexy: mobile top-up">
   **New**
   - **Flexy** sends mobile credit, offers and bills to Mobilis, Ooredoo and Djezzy numbers, and international credit from Mobilis. Asynchronous with automatic refund on failure, safe retries with `idempotency_key`, and your rate on every operator. Endpoints: `GET /flexy/operators`, `POST /flexy/offers`, `POST /flexy/ooredoo-debt-check`, `POST /flexy/topup`, `GET /flexy/status/{id}`, `GET /flexy/history`. See [Flexy (mobile top-up)](/services/flexy).

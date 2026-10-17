@@ -2061,6 +2061,280 @@
           }
         }
       }
+    },
+    "/flexy/bulk": {
+      "post": {
+        "summary": "Bulk top-up (up to 100 numbers)",
+        "description": "Checks the whole list, then processes it in the background, line by line. Each line is a normal Flexy order with its own refund. Poll `GET /flexy/bulk/{id}` until `final` is true. Use `dry_run` to price a list without charging.",
+        "tags": [
+          "Flexy"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "flexyBulk",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "items"
+                ],
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "target_number",
+                        "amount"
+                      ],
+                      "properties": {
+                        "target_number": {
+                          "type": "string",
+                          "example": "0699123456"
+                        },
+                        "amount": {
+                          "type": "number",
+                          "example": 500
+                        },
+                        "topup_type": {
+                          "type": "string",
+                          "enum": [
+                            "prepaid",
+                            "international"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "idempotency_key": {
+                    "type": "string",
+                    "maxLength": 64
+                  },
+                  "dry_run": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "client_ref": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "done": {
+                          "type": "integer"
+                        },
+                        "success": {
+                          "type": "integer"
+                        },
+                        "failed": {
+                          "type": "integer"
+                        },
+                        "final": {
+                          "type": "boolean"
+                        },
+                        "lines": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "number": {
+                                "type": "string"
+                              },
+                              "amount": {
+                                "type": "number"
+                              },
+                              "type": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "queued",
+                                  "processing",
+                                  "success",
+                                  "failed"
+                                ]
+                              },
+                              "price": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "error": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "order_id": {
+                                "type": "integer",
+                                "nullable": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Insufficient balance"
+          },
+          "422": {
+            "description": "No valid line, or validation error"
+          }
+        }
+      }
+    },
+    "/flexy/bulk/{id}": {
+      "get": {
+        "summary": "Bulk list status",
+        "tags": [
+          "Flexy"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "flexyBulkStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Batch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "client_ref": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "done": {
+                          "type": "integer"
+                        },
+                        "success": {
+                          "type": "integer"
+                        },
+                        "failed": {
+                          "type": "integer"
+                        },
+                        "final": {
+                          "type": "boolean"
+                        },
+                        "lines": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "number": {
+                                "type": "string"
+                              },
+                              "amount": {
+                                "type": "number"
+                              },
+                              "type": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "queued",
+                                  "processing",
+                                  "success",
+                                  "failed"
+                                ]
+                              },
+                              "price": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "error": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "order_id": {
+                                "type": "integer",
+                                "nullable": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
     }
   }
 }

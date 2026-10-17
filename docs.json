@@ -133,7 +133,9 @@
               "POST /flexy/ooredoo-debt-check",
               "POST /flexy/topup",
               "GET /flexy/status/{id}",
-              "GET /flexy/history"
+              "GET /flexy/history",
+              "POST /flexy/bulk",
+              "GET /flexy/bulk/{id}"
             ]
           }
         ]

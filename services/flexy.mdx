@@ -78,6 +78,17 @@ Order one with `topup_type: "offer"`, the offer's `amount`, and its `offer_id`, 
 
 For Ooredoo `prepaid` and `offer` top-ups, call `POST /api/flexy/ooredoo-debt-check` first (it stays valid for about 9 minutes). If `has_debt` is `true` you choose: `pay_debt: true` adds the debt to the price, `pay_debt: false` skips it. Skipping the check returns a validation error.
 
+## Bulk top-ups
+
+Send up to **100 numbers in one call**. The list is checked as a whole (your wallet must cover every valid line), then processed in the background, line by line. Each line is an ordinary Flexy order: its own status and its own automatic refund.
+
+```bash
+curl -X POST https://api.wasmou.net/api/flexy/bulk -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+  -d '{"idempotency_key":"payroll_2026_10","items":[{"target_number":"0699123456","amount":500},{"target_number":"0550000011","amount":1000},{"target_number":"0770000022","amount":200}]}'
+```
+
+The answer (`202`) holds the batch `id`. Poll `GET /api/flexy/bulk/{id}` until `final` is `true`: each line shows `queued`, `processing`, `success` or `failed`. Add `"dry_run": true` to check a list and see every price without charging anything. Items accept `topup_type` `prepaid` (default) or `international` (Mobilis only). Ooredoo unpaid balances are skipped in bulk. Re-sending the same `idempotency_key` returns the original batch.
+
 ## History
 
 `GET /api/flexy/history` lists your top-ups (`per_page` up to 100, `page`, `status`, `target_number`). Use it to reconcile with your own orders every day.
@@ -94,5 +105,5 @@ For Ooredoo `prepaid` and `offer` top-ups, call `POST /api/flexy/ooredoo-debt-ch
 | `not_found` | 404 | Order is not yours or does not exist |
 
 <Note>
-**Large and bulk volumes.** Each top-up is limited to 4,999 DA. If you send many numbers or large amounts every day, contact us on WhatsApp +213 770 07 64 90 or open a support ticket: we set up wholesale rates and bulk handling for your account.
+**Large and bulk volumes.** Each top-up is limited to 4,999 DA and each bulk list to 100 numbers. If you send many numbers or large amounts every day, contact us on WhatsApp +213 770 07 64 90 or open a support ticket: we set up wholesale rates and bulk handling for your account.
 </Note>
