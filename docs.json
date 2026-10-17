@@ -59,7 +59,8 @@
               "services/orders",
               "services/stock",
               "services/topups",
-              "services/iptv-vip"
+              "services/iptv-vip",
+              "services/flexy"
             ]
           },
           {
@@ -121,6 +122,18 @@
             "pages": [
               "GET /stock",
               "GET /stock/{variantId}"
+            ]
+          },
+          {
+            "group": "Flexy",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /flexy/operators",
+              "POST /flexy/offers",
+              "POST /flexy/ooredoo-debt-check",
+              "POST /flexy/topup",
+              "GET /flexy/status/{id}",
+              "GET /flexy/history"
             ]
           }
         ]

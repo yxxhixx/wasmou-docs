@@ -1,0 +1,98 @@
+---
+title: "Flexy (mobile top-up)"
+description: "Send mobile credit, offers and bills to Mobilis, Ooredoo and Djezzy numbers, and international credit from Mobilis. Asynchronous, refunded automatically on failure."
+---
+
+Flexy tops up Algerian mobile numbers from your Wasmou wallet. Prices are in DZD and are **your rate**: you always pay less than the amount the recipient receives.
+
+| Operator | Prefix | Types |
+| --- | --- | --- |
+| Mobilis | `06` | `prepaid`, `offer`, `facture`, `international` |
+| Ooredoo | `05` | `prepaid`, `offer`, `facture` |
+| Djezzy | `07` | `prepaid`, `offer`, `facture` |
+
+Read live limits and your rate from `GET /api/flexy/operators`: do not hard-code them.
+
+## How an order works
+
+Top-ups are **asynchronous**. You submit, we debit your wallet and answer `202`, the top-up is sent in the background, and the order ends as `success` or `failed`. A failed order is refunded to your wallet automatically.
+
+| `status` | `final` | Meaning | What to do |
+| --- | --- | --- | --- |
+| `processing` | `false` | Being sent | Keep polling |
+| `success` | `true` | Delivered | Done |
+| `failed` | `true` | Not delivered, wallet refunded | Safe to retry with a new `idempotency_key` |
+
+Typical time is 5 to 20 seconds. Poll `GET /api/flexy/status/{id}` every 3 to 5 seconds. **Never retry a top-up that is still `processing`**: you could deliver twice.
+
+## Idempotency
+
+Send an `idempotency_key` (max 64 characters, unique per order in your system, for example your order ID) on every top-up. Re-sending the same key returns the original order with `"idempotent": true` and never charges twice. Use it for network retries and timeouts.
+
+## Send a top-up
+
+<Steps>
+  <Step title="Read operators and your rate">
+    ```bash
+    curl https://api.wasmou.net/api/flexy/operators -H "X-Api-Key: YOUR_API_KEY"
+    ```
+    ```json Response
+    { "status": "success", "data": { "operators": [
+      { "id": "mobilis", "name": "Mobilis", "prefixes": ["06"], "requires_debt_check": false,
+        "types": { "prepaid": { "min": 40, "max": 4999, "discount_percent": 3 },
+                   "international": { "min": 200, "max": 4000, "discount_percent": 3 } } } ] } }
+    ```
+  </Step>
+  <Step title="Submit">
+    ```bash
+    curl -X POST https://api.wasmou.net/api/flexy/topup \
+      -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+      -d '{"target_number":"0699123456","amount":500,"topup_type":"prepaid","idempotency_key":"order_1001"}'
+    ```
+    ```json Response (202)
+    { "status": "success", "message": "Top-up submitted for processing.",
+      "data": { "id": 4812, "number": "0699123456", "operator": "mobilis", "type": "prepaid",
+                "amount": 500, "price": 485, "status": "processing", "final": false, "client_ref": "order_1001", "balance": 15230.5 } }
+    ```
+    `amount` is what the recipient receives. `price` is what leaves your wallet.
+  </Step>
+  <Step title="Poll until final">
+    ```bash
+    curl https://api.wasmou.net/api/flexy/status/4812 -H "X-Api-Key: YOUR_API_KEY"
+    ```
+  </Step>
+</Steps>
+
+## Offers
+
+Offers depend on the number. Fetch them right before ordering and do not cache them across numbers.
+
+```bash
+curl -X POST https://api.wasmou.net/api/flexy/offers -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
+  -d '{"target_number":"0652575953"}'
+```
+
+Order one with `topup_type: "offer"`, the offer's `amount`, and its `offer_id`, `offer_name`, `offer_category` and `menu_number`.
+
+## Ooredoo unpaid balance
+
+For Ooredoo `prepaid` and `offer` top-ups, call `POST /api/flexy/ooredoo-debt-check` first (it stays valid for about 9 minutes). If `has_debt` is `true` you choose: `pay_debt: true` adds the debt to the price, `pay_debt: false` skips it. Skipping the check returns a validation error.
+
+## History
+
+`GET /api/flexy/history` lists your top-ups (`per_page` up to 100, `page`, `status`, `target_number`). Use it to reconcile with your own orders every day.
+
+## Errors
+
+| `error` | HTTP | Meaning |
+| --- | --- | --- |
+| `validation_error` | 422 | Bad number, amount outside the limits, missing offer, price changed |
+| `insufficient_balance` | 402 | Wallet too low |
+| `rate_limited` | 429 | Too many requests: top-ups are limited to 30 per minute |
+| `service_unavailable` | 503 | Flexy is paused or the operator could not be reached: retry shortly |
+| `demo_account` | 403 | Demo accounts cannot send real top-ups |
+| `not_found` | 404 | Order is not yours or does not exist |
+
+<Note>
+**Large and bulk volumes.** Each top-up is limited to 4,999 DA. If you send many numbers or large amounts every day, contact us on WhatsApp +213 770 07 64 90 or open a support ticket: we set up wholesale rates and bulk handling for your account.
+</Note>

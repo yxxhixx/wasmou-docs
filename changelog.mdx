@@ -3,6 +3,12 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="October 2026 (6)" description="Flexy: mobile top-up">
+  **New**
+  - **Flexy** sends mobile credit, offers and bills to Mobilis, Ooredoo and Djezzy numbers, and international credit from Mobilis. Asynchronous with automatic refund on failure, safe retries with `idempotency_key`, and your rate on every operator. Endpoints: `GET /flexy/operators`, `POST /flexy/offers`, `POST /flexy/ooredoo-debt-check`, `POST /flexy/topup`, `GET /flexy/status/{id}`, `GET /flexy/history`. See [Flexy (mobile top-up)](/services/flexy).
+  - **Large and bulk volumes** are supported: contact us for wholesale rates and bulk handling.
+</Update>
+
 <Update label="October 2026 (5)" description="Demo accounts">
   **New**
   - **Demo accounts** for every level (Base, Dealer, Reseller, VIP), each with its own API key. Prices, wallet and orders are fake and nothing reaches a supplier. See [Try the demo](/guides/try-the-demo).

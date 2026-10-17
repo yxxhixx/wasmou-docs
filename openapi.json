@@ -1378,6 +1378,689 @@
           }
         }
       }
+    },
+    "/flexy/operators": {
+      "get": {
+        "summary": "Flexy operators and your rate",
+        "description": "Operators, supported top-up types, limits and your discount in percent. Read it instead of hard-coding limits.",
+        "tags": [
+          "Flexy"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "flexyOperators",
+        "responses": {
+          "200": {
+            "description": "Operators",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "operators": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "prefixes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "requires_debt_check": {
+                                "type": "boolean"
+                              },
+                              "types": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "object",
+                                  "properties": {
+                                    "min": {
+                                      "type": "number"
+                                    },
+                                    "max": {
+                                      "type": "number"
+                                    },
+                                    "discount_percent": {
+                                      "type": "number"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flexy/offers": {
+      "post": {
+        "summary": "Offers for a number",
+        "description": "Real-time offers for one number (5 to 15 seconds). Offers are number-specific: do not cache them across numbers.",
+        "tags": [
+          "Flexy"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "flexyOffers",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "target_number"
+                ],
+                "properties": {
+                  "target_number": {
+                    "type": "string",
+                    "example": "0652575953"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Offers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "operator": {
+                          "type": "string"
+                        },
+                        "target_number": {
+                          "type": "string"
+                        },
+                        "offers": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "offer_id": {
+                                "type": "string"
+                              },
+                              "menu_number": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "amount": {
+                                "type": "number"
+                              },
+                              "category": {
+                                "type": "string"
+                              },
+                              "price": {
+                                "type": "number",
+                                "description": "Your price"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flexy/ooredoo-debt-check": {
+      "post": {
+        "summary": "Ooredoo unpaid balance check",
+        "description": "Required before `prepaid` and `offer` top-ups to an Ooredoo number. Valid for about 9 minutes.",
+        "tags": [
+          "Flexy"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "flexyDebtCheck",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "target_number",
+                  "amount",
+                  "topup_type"
+                ],
+                "properties": {
+                  "target_number": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "topup_type": {
+                    "type": "string",
+                    "enum": [
+                      "prepaid",
+                      "offer"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "has_debt": {
+                          "type": "boolean"
+                        },
+                        "debt_amount": {
+                          "type": "number"
+                        },
+                        "valid_for_seconds": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flexy/topup": {
+      "post": {
+        "summary": "Send a top-up",
+        "description": "Debits your wallet and answers `202`. The top-up is sent in the background: poll `GET /flexy/status/{id}` until `final` is true. A failed top-up is refunded automatically. Send `idempotency_key` so a retry never charges twice.",
+        "tags": [
+          "Flexy"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "flexyTopup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "target_number",
+                  "amount",
+                  "topup_type"
+                ],
+                "properties": {
+                  "target_number": {
+                    "type": "string",
+                    "example": "0699123456"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "example": 500
+                  },
+                  "topup_type": {
+                    "type": "string",
+                    "enum": [
+                      "prepaid",
+                      "offer",
+                      "facture",
+                      "international"
+                    ]
+                  },
+                  "offer_id": {
+                    "type": "string"
+                  },
+                  "offer_name": {
+                    "type": "string"
+                  },
+                  "offer_category": {
+                    "type": "string"
+                  },
+                  "menu_number": {
+                    "type": "string"
+                  },
+                  "pay_debt": {
+                    "type": "boolean",
+                    "description": "Ooredoo only: pay the unpaid balance with this top-up"
+                  },
+                  "idempotency_key": {
+                    "type": "string",
+                    "maxLength": 64
+                  },
+                  "expected_price": {
+                    "type": "number",
+                    "description": "Optional: refuse the order if your price changed"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "number": {
+                          "type": "string",
+                          "example": "0699123456"
+                        },
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "mobilis",
+                            "ooredoo",
+                            "djezzy"
+                          ]
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "prepaid",
+                            "offer",
+                            "facture",
+                            "international"
+                          ]
+                        },
+                        "amount": {
+                          "type": "number",
+                          "description": "What the recipient receives (DZD)"
+                        },
+                        "price": {
+                          "type": "number",
+                          "description": "What left your wallet (DZD)"
+                        },
+                        "offer": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "processing",
+                            "success",
+                            "failed"
+                          ]
+                        },
+                        "final": {
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "client_ref": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Your idempotency_key"
+                        },
+                        "balance": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Insufficient balance"
+          },
+          "422": {
+            "description": "Validation error"
+          },
+          "503": {
+            "description": "Flexy unavailable"
+          }
+        }
+      }
+    },
+    "/flexy/status/{id}": {
+      "get": {
+        "summary": "Top-up status",
+        "tags": [
+          "Flexy"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "flexyStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "number": {
+                          "type": "string",
+                          "example": "0699123456"
+                        },
+                        "operator": {
+                          "type": "string",
+                          "enum": [
+                            "mobilis",
+                            "ooredoo",
+                            "djezzy"
+                          ]
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "prepaid",
+                            "offer",
+                            "facture",
+                            "international"
+                          ]
+                        },
+                        "amount": {
+                          "type": "number",
+                          "description": "What the recipient receives (DZD)"
+                        },
+                        "price": {
+                          "type": "number",
+                          "description": "What left your wallet (DZD)"
+                        },
+                        "offer": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "processing",
+                            "success",
+                            "failed"
+                          ]
+                        },
+                        "final": {
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "client_ref": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Your idempotency_key"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/flexy/history": {
+      "get": {
+        "summary": "Top-up history",
+        "tags": [
+          "Flexy"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "flexyHistory",
+        "parameters": [
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "maximum": 100
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "processing",
+                "success",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "target_number",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "History",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "orders": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "number": {
+                                "type": "string",
+                                "example": "0699123456"
+                              },
+                              "operator": {
+                                "type": "string",
+                                "enum": [
+                                  "mobilis",
+                                  "ooredoo",
+                                  "djezzy"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "prepaid",
+                                  "offer",
+                                  "facture",
+                                  "international"
+                                ]
+                              },
+                              "amount": {
+                                "type": "number",
+                                "description": "What the recipient receives (DZD)"
+                              },
+                              "price": {
+                                "type": "number",
+                                "description": "What left your wallet (DZD)"
+                              },
+                              "offer": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "processing",
+                                  "success",
+                                  "failed"
+                                ]
+                              },
+                              "final": {
+                                "type": "boolean"
+                              },
+                              "message": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "created_at": {
+                                "type": "string"
+                              },
+                              "client_ref": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Your idempotency_key"
+                              }
+                            }
+                          }
+                        },
+                        "page": {
+                          "type": "integer"
+                        },
+                        "per_page": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
