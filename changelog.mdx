@@ -16,7 +16,7 @@ description: "What changed in the Wasmou API."
 
 <Update label="October 2026 (5)" description="Demo accounts">
   **New**
-  - **Demo accounts** for every level (Base, Dealer, Reseller, VIP), each with its own API key. Prices, wallet and orders are fake and nothing reaches a supplier. See [Try the demo](/guides/try-the-demo).
+  - **Demo accounts** for every level (Base, Dealer, Reseller, VIP), each with its own API key. Prices, wallet and orders are fake and nothing is really delivered or charged. See [Try the demo](/guides/try-the-demo).
 </Update>
 
 <Update label="October 2026 (4)" description="IPTV and VIP Server">
@@ -41,9 +41,9 @@ description: "What changed in the Wasmou API."
   - Deposits are available by Baridi Mob / CCP transfer.
 </Update>
 
-<Update label="October 2026" description="Instant supplier catalog and game top-ups">
+<Update label="October 2026" description="Instant catalog and game top-ups">
   **New**
-  - **Hundreds of gift cards delivered instantly**, with names and prices that follow our supplier automatically.
+  - **Hundreds of gift cards delivered instantly**, with names and prices that follow the market automatically.
   - **Game top-ups and Telegram**: Free Fire (MENA), PUBG Mobile (Auto), Mobile Legends (Global), Delta Force, Genshin Impact (Global), PUBG: New State, Whiteout Survival, Telegram Premium and Telegram Stars. They are catalog products with a `kind` field, ordered with the normal purchase endpoint. See [Game top-ups and Telegram](/services/topups).
   - `POST /catalog/{id}/verify` checks a game player ID before you pay.
   - Catalog products have a new `kind` field, `delivery` can be `topup`, and `input_fields` is now a list with an `index` per field (send the value under that index in the purchase body).
@@ -61,7 +61,7 @@ description: "What changed in the Wasmou API."
   **Changed**
   - **New API host: `https://api.wasmou.net/api`** (was `https://gateway.wasmou.net/api`). Only the hostname changed: paths, headers, request bodies and responses are the same. To migrate, replace the host in your configuration.
   - Responses no longer start with a byte-order mark (an invisible character before the opening brace).
-  - The public product search (`/api/products/search`, `/api/products/filter`) no longer returns supplier cost information.
+  - The public product search (`/api/products/search`, `/api/products/filter`) no longer returns internal cost information.
 
   **Removed**
   - Internet / ADSL top-ups (`/api/internet/*`), social-media services (`/api/smm/*`), Flexy mobile top-ups (`/api/flexy/*`), IMEI services and the IPTV product range. Their endpoints return `404`. IPTV will return as a separate API.

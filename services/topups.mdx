@@ -14,7 +14,7 @@ Top-ups are regular catalog products with `kind` set to `topup`, `telegram_premi
 | Telegram Premium (3, 6, 12 months) | `telegram_premium` | `Telegram username` |
 | Telegram Stars (50 to 10,000) | `telegram_stars` | `Telegram username` |
 
-Prices follow our supplier automatically, so always read them from the [catalog](/services/catalog) instead of hard-coding them.
+Prices follow the market automatically, so always read them from the [catalog](/services/catalog) instead of hard-coding them.
 
 <Steps>
   <Step title="Find the product and its inputs">
@@ -47,7 +47,7 @@ Prices follow our supplier automatically, so always read them from the [catalog]
     ```
   </Step>
   <Step title="Follow the order">
-    Poll `POST /api/products/orders/retrieve`. The order is `processing` for a few seconds up to a few minutes, then `completed`. If the supplier cannot deliver (for example a wrong player ID), the order becomes `failed` and the full amount is refunded to your wallet automatically.
+    Poll `POST /api/products/orders/retrieve`. The order is `processing` for a few seconds up to a few minutes, then `completed`. If the top-up cannot be delivered (for example a wrong player ID), the order becomes `failed` and the full amount is refunded to your wallet automatically.
   </Step>
 </Steps>
 

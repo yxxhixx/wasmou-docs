@@ -1165,7 +1165,7 @@
     "/catalog/{id}/verify": {
       "post": {
         "summary": "Verify a player ID",
-        "description": "Checks a game player ID with the supplier before you order a top-up. Send the inputs keyed by their `index` (see `input_fields` in the catalog). Only products with `kind` `topup` are supported.",
+        "description": "Checks a game player ID before you order a top-up. Send the inputs keyed by their `index` (see `input_fields` in the catalog). Only products with `kind` `topup` are supported.",
         "tags": [
           "Catalog"
         ],

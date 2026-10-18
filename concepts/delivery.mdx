@@ -7,12 +7,12 @@ Every variant in the catalog has a `delivery` field.
 
 | `delivery` | What it means | When you get the code |
 | --- | --- | --- |
-| `instant` | Gift cards and vouchers fulfilled automatically by our supplier. | Within seconds. Poll the order until `status` is `completed`. |
+| `instant` | Gift cards and vouchers fulfilled automatically. | Within seconds. Poll the order until `status` is `completed`. |
 | `topup` | Game credit or Telegram Premium / Stars sent straight to the account you name. | Within seconds to a few minutes. No code: the order becomes `completed` when delivered. |
 | `key` | Wasmou holds a pool of codes. One is assigned the moment you buy. | In the purchase flow. `in_stock` tells you how many are left. |
 
 <Note>
-Every product is delivered automatically. Check `delivery` and `available` after each catalog refresh instead of hard-coding them: a product can be temporarily unavailable when our supplier is out of stock.
+Every product is delivered automatically. Check `delivery` and `available` after each catalog refresh instead of hard-coding them: a product can be temporarily unavailable when it is out of stock.
 </Note>
 
 ## Order statuses
