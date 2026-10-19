@@ -65,7 +65,7 @@ Send an `idempotency_key` (max 64 characters, unique per order in your system, f
 
 ## Offers
 
-Offers depend on the number. Fetch them right before ordering and do not cache them across numbers.
+Offers depend on the number. Fetch them right before ordering and do not cache them across numbers. You can only order an offer that `/flexy/offers` returned for that number in the last 15 minutes (the price comes from that list).
 
 ```bash
 curl -X POST https://api.wasmou.net/api/flexy/offers -H "X-Api-Key: YOUR_API_KEY" -H "Content-Type: application/json" \
