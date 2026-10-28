@@ -3,6 +3,16 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="October 2026 (8)" description="Flexy: faster status, offer fixes">
+  **Fixed**
+  - Offers with `offer_id` `0` (such as the 50 DA Mobilis offer) can be ordered; `0` is a valid id.
+  - Offer ids repeat across categories, so orders now match the offer by `offer_category` too (or by `offer_key`). An ambiguous `offer_id` without a category is refused instead of picking another offer.
+
+  **Improved**
+  - Order status is detected within a few seconds of the operator finishing, even when you do not poll. `GET /flexy/status/{id}` can be called once per second.
+  - Offers for the same number are served faster for a short time.
+</Update>
+
 <Update label="October 2026 (7)" description="Flexy bulk">
   **New**
   - **Bulk top-ups**: `POST /flexy/bulk` sends up to 100 numbers in one call, processed in the background with a per-line status and refund. Poll `GET /flexy/bulk/{id}`; use `dry_run` to price a list first. See [Flexy](/services/flexy).

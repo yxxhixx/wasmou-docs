@@ -74,6 +74,10 @@ curl -X POST https://api.wasmou.net/api/flexy/offers -H "X-Api-Key: YOUR_API_KEY
 
 Order one with `topup_type: "offer"`, the offer's `amount`, and its `offer_id`, `offer_name`, `offer_category` and `menu_number`.
 
+<Note>
+Offer ids are only unique **inside a category** (for example Mobilis has a `MIX` offer 1 and a `NET` offer 1), and `0` is a valid id. Always send `offer_category` with `offer_id`, or send the `key` of the offer (`CATEGORY:id`) as `offer_key`. An `offer_id` that appears in several categories is refused without a category.
+</Note>
+
 ## Ooredoo unpaid balance
 
 For Ooredoo `prepaid` and `offer` top-ups, call `POST /api/flexy/ooredoo-debt-check` first (it stays valid for about 9 minutes). If `has_debt` is `true` you choose: `pay_debt: true` adds the debt to the price, `pay_debt: false` skips it. Skipping the check returns a validation error.
