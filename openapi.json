@@ -2335,6 +2335,633 @@
           }
         }
       }
+    },
+    "/webhook": {
+      "get": {
+        "summary": "Get webhook settings",
+        "description": "Your webhook address, events and the last 24 hours of deliveries. The secret is never returned here.",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "getWebhook",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "configured": {
+                          "type": "boolean"
+                        },
+                        "url": {
+                          "type": "string",
+                          "example": "https://your-site.com/wasmou-webhook"
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "events": {
+                          "type": "array",
+                          "nullable": true,
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "null means every event"
+                        },
+                        "events_available": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "secret_hint": {
+                          "type": "string",
+                          "example": "…a1b2"
+                        },
+                        "disabled_reason": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "last_24h": {
+                          "type": "object",
+                          "properties": {
+                            "delivered": {
+                              "type": "integer"
+                            },
+                            "failed": {
+                              "type": "integer"
+                            },
+                            "pending": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "secret": {
+                          "type": "string",
+                          "description": "Only returned when the webhook is first created. Shown once."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          }
+        }
+      },
+      "put": {
+        "summary": "Create or update the webhook",
+        "description": "Sets the HTTPS address that receives your events. The first call returns the signing secret **once**. Saving again also switches a webhook back on after it was switched off. See the Webhooks guide.",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "saveWebhook",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "url"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "example": "https://your-site.com/wasmou-webhook",
+                    "description": "Public https:// address, up to 500 characters."
+                  },
+                  "events": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "order.completed",
+                        "order.failed",
+                        "order.refunded",
+                        "order.canceled",
+                        "flexy.completed",
+                        "flexy.failed"
+                      ]
+                    },
+                    "description": "Leave out to receive every event."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "configured": {
+                          "type": "boolean"
+                        },
+                        "url": {
+                          "type": "string",
+                          "example": "https://your-site.com/wasmou-webhook"
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "events": {
+                          "type": "array",
+                          "nullable": true,
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "null means every event"
+                        },
+                        "events_available": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "secret_hint": {
+                          "type": "string",
+                          "example": "…a1b2"
+                        },
+                        "disabled_reason": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "last_24h": {
+                          "type": "object",
+                          "properties": {
+                            "delivered": {
+                              "type": "integer"
+                            },
+                            "failed": {
+                              "type": "integer"
+                            },
+                            "pending": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "secret": {
+                          "type": "string",
+                          "description": "Only returned when the webhook is first created. Shown once."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created. Contains the secret, shown once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "configured": {
+                          "type": "boolean"
+                        },
+                        "url": {
+                          "type": "string",
+                          "example": "https://your-site.com/wasmou-webhook"
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "events": {
+                          "type": "array",
+                          "nullable": true,
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "null means every event"
+                        },
+                        "events_available": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "secret_hint": {
+                          "type": "string",
+                          "example": "…a1b2"
+                        },
+                        "disabled_reason": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "last_24h": {
+                          "type": "object",
+                          "properties": {
+                            "delivered": {
+                              "type": "integer"
+                            },
+                            "failed": {
+                              "type": "integer"
+                            },
+                            "pending": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "secret": {
+                          "type": "string",
+                          "description": "Only returned when the webhook is first created. Shown once."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The URL is not valid or not public"
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove the webhook",
+        "description": "Stops all deliveries and removes pending ones.",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "deleteWebhook",
+        "responses": {
+          "200": {
+            "description": "Removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          }
+        }
+      }
+    },
+    "/webhook/secret": {
+      "post": {
+        "summary": "Create a new signing secret",
+        "description": "The old secret stops working immediately. The new one is shown once.",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "rotateWebhookSecret",
+        "responses": {
+          "200": {
+            "description": "New secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "secret": {
+                          "type": "string",
+                          "example": "whsec_..."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No webhook set"
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          }
+        }
+      }
+    },
+    "/webhook/test": {
+      "post": {
+        "summary": "Send a test event",
+        "description": "Sends a `webhook.test` event to your address and returns what your server answered. Nothing is stored in the delivery list.",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "testWebhook",
+        "responses": {
+          "200": {
+            "description": "Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "delivered": {
+                          "type": "boolean"
+                        },
+                        "response_code": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "response_ms": {
+                          "type": "integer"
+                        },
+                        "error": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No webhook set"
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          }
+        }
+      }
+    },
+    "/webhook/deliveries": {
+      "get": {
+        "summary": "List deliveries",
+        "description": "Recent deliveries (kept for 14 days), newest first.",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "listWebhookDeliveries",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "success",
+                "failed"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "event": {
+                            "type": "string"
+                          },
+                          "object_id": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "success",
+                              "failed"
+                            ]
+                          },
+                          "attempts": {
+                            "type": "integer"
+                          },
+                          "response_code": {
+                            "type": "integer",
+                            "nullable": true
+                          },
+                          "response_ms": {
+                            "type": "integer",
+                            "nullable": true
+                          },
+                          "error": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "next_attempt_at": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "delivered_at": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "created_at": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          }
+        }
+      }
+    },
+    "/webhook/deliveries/{id}/retry": {
+      "post": {
+        "summary": "Send a delivery again",
+        "description": "Queues a finished delivery to be sent again within a few seconds.",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "operationId": "retryWebhookDelivery",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Delivery not found"
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          }
+        }
+      }
     }
   }
 }

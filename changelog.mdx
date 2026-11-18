@@ -3,6 +3,11 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="November 2026 (1)" description="Webhooks">
+  **New**
+  - **Webhooks**: get a signed message on your own HTTPS address when an order is delivered, fails, is refunded or canceled, or when a mobile top-up ends. No more polling. Manage it in the dashboard (API access) or with `PUT /webhook`, `POST /webhook/test`, `GET /webhook/deliveries`. Signed with HMAC-SHA256, retried up to 5 times, with a delivery log and one-click resend. See [Webhooks](/guides/webhooks).
+</Update>
+
 <Update label="October 2026 (8)" description="Flexy: faster status, offer fixes">
   **Fixed**
   - Offers with `offer_id` `0` (such as the 50 DA Mobilis offer) can be ordered; `0` is a valid id.

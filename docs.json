@@ -70,7 +70,8 @@
               "guides/sync-catalog",
               "guides/automate-fulfilment",
               "guides/game-topups",
-              "guides/woocommerce-plugin"
+              "guides/woocommerce-plugin",
+              "guides/webhooks"
             ]
           },
           {
@@ -136,6 +137,19 @@
               "GET /flexy/history",
               "POST /flexy/bulk",
               "GET /flexy/bulk/{id}"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /webhook",
+              "PUT /webhook",
+              "DELETE /webhook",
+              "POST /webhook/secret",
+              "POST /webhook/test",
+              "GET /webhook/deliveries",
+              "POST /webhook/deliveries/{id}/retry"
             ]
           }
         ]

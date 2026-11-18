@@ -9,8 +9,8 @@ The same loop works for every variant. Only the waiting time differs.
   <Step title="Buy">
     `POST /products/purchase/{variantId}` with `quantity` and any `input_fields`. Save the returned `order_ids` in your database **before** doing anything else.
   </Step>
-  <Step title="Poll">
-    `POST /products/orders/retrieve` with your saved IDs. Orders in `processing` are not done yet.
+  <Step title="Wait for the result">
+    Best: receive it by [webhook](/guides/webhooks) the moment it is final. Or poll `POST /products/orders/retrieve` with your saved IDs; orders in `processing` are not done yet.
   </Step>
   <Step title="Deliver">
     When `has_key` is `true`, send `key` to your customer and mark the order done. If the status is `failed`, `refunded` or `canceled`, the amount is back in your wallet: tell the customer and refund them on your side.
