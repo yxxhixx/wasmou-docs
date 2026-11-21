@@ -22,7 +22,7 @@ if (check.status === "invalid") throw new Error("Wrong player ID");
 
 // 3. Order, then poll until the status is final
 const order = await (await fetch(`${API}/products/purchase/${variant.id}`, {
-  method: "POST", headers, body: JSON.stringify({ quantity: 1, 0: "123456789" }),
+  method: "POST", headers, body: JSON.stringify({ quantity: 1, 0: "123456789", reference: "SHOP-10442" }), // reference = your own order number, returned in the answer and in webhooks
 })).json();
 ```
 

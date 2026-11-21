@@ -66,6 +66,7 @@ Only **final** states are sent. An order that is still processing sends nothing;
   "data": {
     "object": "order",
     "order_id": "1794994375667035576",
+    "reference": "SHOP-10442",
     "product_name": "Steam Wallet (US)",
     "variant_name": "20 USD",
     "status": "completed",
@@ -172,7 +173,8 @@ def wasmou_webhook():
 - Any `2xx` answer counts as delivered. Anything else (or no answer in 8 seconds) is retried **5 more times**: after 1 minute, 5 minutes, 30 minutes, 2 hours and 6 hours.
 - Redirects are not followed. Use the final address.
 - A delivery is **at least once**. The same event can arrive twice, so store `event.id` (or `data.order_id` plus `type`) and ignore repeats.
-- Events can arrive out of order and can arrive **before** your own purchase request has returned. Match on `order_id`, and if you do not know it yet, answer `200` and reconcile with `GET /products/order/{orderId}`.
+- Events can arrive out of order and can arrive **before** your own purchase request has returned. Match on `data.reference` (your own order number, see below) or on `order_id`, and if you do not know it yet, answer `200` and reconcile with `GET /products/order/{orderId}`.
+- **Use your own order number.** Send `"reference": "SHOP-10442"` in the body of `POST /products/purchase/{variantId}` (up to 128 characters). Every webhook for that order, the purchase answer and `GET /products/order/{orderId}` repeat it as `reference`, so you never have to store our `order_id` before the webhook arrives. If you send no `reference`, your `Idempotency-Key` header is used instead.
 - If 25 deliveries in a row run out of retries, the webhook is switched off and the reason is shown in the dashboard and in `GET /webhook`. Fix your server and save the webhook again to switch it back on. Events are only sent from the moment the webhook is on; nothing from the time it was off is replayed, so use `GET /orders` to catch up.
 - Delivery history (last 14 days) is in `GET /webhook/deliveries`. Send one again with `POST /webhook/deliveries/{id}/retry`.
 

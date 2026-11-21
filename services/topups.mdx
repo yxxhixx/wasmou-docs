@@ -52,5 +52,5 @@ Prices follow the market automatically, so always read them from the [catalog](/
 </Steps>
 
 <Note>
-`quantity` above 1 places one separate top-up per unit for the same player. Check the player ID twice: top-ups cannot be recalled once delivered.
+Add `"reference": "SHOP-10442"` (your own order number, up to 128 characters) to match the order and its webhooks with your own system: it comes back as `reference` in the purchase answer, in `GET /products/order/{orderId}` and in every webhook. `quantity` above 1 places one separate top-up per unit for the same player. Check the player ID twice: top-ups cannot be recalled once delivered.
 </Note>
