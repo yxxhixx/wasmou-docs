@@ -56,6 +56,6 @@ curl -X GET "https://api.wasmou.net/api/balance" \
 
 - `balance` is the total balance of your wallet.
 - `available_balance` is what you can spend right now (the balance minus amounts reserved by pending operations). **Use this one for decisions.**
-- All amounts are in DZD.
+- Amounts are in your wallet currency: DZD, or USD for accounts billed in dollars. In that case the answer also carries a top-level `currency` field (`"USD"`).
 - If an order fails, the amount is **refunded automatically**.
 - Add funds from the [deposit page](https://myapp.wasmou.net/deposit).

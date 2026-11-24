@@ -5,8 +5,8 @@ description: "Sell Wasmou products in your own WooCommerce store. Import in one 
 
 **Wasmou for WooCommerce** turns your WordPress shop into a Wasmou reseller store. Your customers pay you, the plugin buys from your Wasmou wallet and delivers the code, subscription or top-up to your customer. No coding.
 
-<Card title="Download Wasmou for WooCommerce" icon="download" href="https://myapp.wasmou.net/downloads/wasmou-for-woocommerce.zip">
-  Version 1.0.0 · free · English, Français, العربية
+<Card title="Download Wasmou for WooCommerce" icon="download" href="https://myapp.wasmou.net/downloads/wasmou-for-woocommerce-1.1.0.zip">
+  Version 1.1.0 · free · English, Français, العربية
 </Card>
 
 ## Requirements
@@ -31,7 +31,7 @@ description: "Sell Wasmou products in your own WooCommerce store. Import in one 
 
 ## Pricing
 
-Wasmou prices are in Algerian dinar. In the **Pricing** tab choose your margin (a percentage or a fixed amount), your store currency and exchange rate, and a rounding rule. Prices are recalculated at every sync and never drop below your cost.
+Wasmou prices are in your wallet currency: Algerian dinar for local accounts, US dollars for international accounts (the plugin reads it from the API). In the **Pricing** tab choose your margin (a percentage or a fixed amount), your store currency and exchange rate, and a rounding rule. Prices are recalculated at every sync and never drop below your cost.
 
 ## How orders are delivered
 
@@ -50,6 +50,10 @@ Products that are added to the customer's own account (subscriptions) ask for th
 - **If Wasmou can not deliver**, the order is put **On hold** and you are e-mailed, or the failed items are refunded automatically through your payment gateway.
 - Stock is mirrored from Wasmou, so you never sell what is out of stock.
 
+## Instant updates
+
+In the **Delivery** tab, press **Turn on instant updates**. Wasmou then tells your shop the moment an order is delivered, so your customer gets the code in seconds instead of waiting for the next check. The plugin verifies every message (signature and time), ignores repeats and always re-reads the order from the API, and polling stays on as a safety net. Your site must use `https://`. An account has one webhook: if you already set one up for something else, the plugin tells you and does not replace it.
+
 ## Keep prices and stock fresh
 
 The plugin syncs every 15 minutes by default (**Delivery** tab). Re-syncing only touches prices, stock and plans: your edits to titles, descriptions and categories are kept. On low-traffic sites, add a real cron job that calls `wp-cron.php` every minute for the fastest delivery.
@@ -65,4 +69,4 @@ The plugin syncs every 15 minutes by default (**Delivery** tab). Re-syncing only
 
 ## For developers
 
-The plugin uses the public API only: [catalog](/services/catalog), [account balance](/services/account), [purchase](/services/products) and [order retrieval](/services/orders). It sends an `Idempotency-Key` header on every purchase (see [Automate fulfilment](/guides/automate-fulfilment)).
+The plugin uses the public API only: [catalog](/services/catalog), [account balance](/services/account), [purchase](/services/products) and [order retrieval](/services/orders). It sends an `Idempotency-Key` header and your own order number as `reference` (`WC-{order id}-{item id}`) on every purchase (see [Automate fulfilment](/guides/automate-fulfilment)), and can register a [webhook](/guides/webhooks) for instant updates.

@@ -3,6 +3,14 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="November 2026 (3)" description="WooCommerce plugin 1.1.0">
+  **New**
+  - **Wasmou for WooCommerce 1.1.0**: works with dollar accounts (prices, balance and alerts follow the `currency` the API reports), sends your own order number as `reference`, and can turn on webhooks with one click for instant delivery. See [WordPress / WooCommerce plugin](/guides/woocommerce-plugin).
+
+  **Docs**
+  - Amounts are in your wallet currency (DZD, or USD for international accounts); answers carry a top-level `currency` field in the USD case.
+</Update>
+
 <Update label="November 2026 (2)" description="Your own order reference">
   **New**
   - `POST /products/purchase/{variantId}` accepts a `reference` (your own order number, up to 128 characters; the `Idempotency-Key` is used when it is missing). It is returned as `reference` in the purchase answer, in `GET /products/order/{orderId}` and in every order webhook, so you can match deliveries to your own orders without storing our `order_id` first.
