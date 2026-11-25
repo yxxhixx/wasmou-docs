@@ -3,6 +3,11 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="November 2026 (4)" description="Shop2Game order ID">
+  **New**
+  - Delivered Free Fire (MENA) top-ups now return the **Shop2Game order ID** as `shop2game_order_id`: in `GET /products/order/{orderId}`, in `POST /products/orders/retrieve`, in every order webhook and in the dashboard order details. It is `null` for other orders and until the order is completed. See [Game top-ups](/guides/game-topups#shop2game-order-id).
+</Update>
+
 <Update label="November 2026 (3)" description="WooCommerce plugin 1.1.0">
   **New**
   - **Wasmou for WooCommerce 1.1.0**: works with dollar accounts (prices, balance and alerts follow the `currency` the API reports), sends your own order number as `reference`, and can turn on webhooks with one click for instant delivery. See [WordPress / WooCommerce plugin](/guides/woocommerce-plugin).

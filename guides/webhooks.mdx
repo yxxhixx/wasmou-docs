@@ -81,7 +81,7 @@ Only **final** states are sent. An order that is still processing sends nothing;
 }
 ```
 
-`data` is the same order object that `GET /products/order/{orderId}` returns, plus `object` and `currency`. Accounts billed in dollars receive `price` in USD and `"currency": "USD"`. Top-up events carry the same fields as `GET /flexy/status/{id}` with `"object": "flexy_order"`.
+`data` is the same order object that `GET /products/order/{orderId}` returns, plus `object` and `currency`. For delivered Free Fire (MENA) top-ups it includes `shop2game_order_id` (the Shop2Game transaction number); it is `null` for other orders. Accounts billed in dollars receive `price` in USD and `"currency": "USD"`. Top-up events carry the same fields as `GET /flexy/status/{id}` with `"object": "flexy_order"`.
 
 ## Verify the signature
 

@@ -131,6 +131,8 @@ Your wallet is debited and, for allocated variants, your stock is consumed in th
 }
 ```
 
+For delivered Free Fire (MENA) top-ups the order also carries `shop2game_order_id`, the Shop2Game transaction number of the top-up (for example `"13639533933491789070"`). It is `null` for every other order and while the order is still processing. See [Game top-ups](/guides/game-topups#shop2game-order-id).
+
 ### Multiple orders
 
 **Endpoint:** `POST /api/products/orders/retrieve`

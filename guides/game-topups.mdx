@@ -29,3 +29,17 @@ const order = await (await fetch(`${API}/products/purchase/${variant.id}`, {
 <Note>
 Failed top-ups are refunded to your wallet automatically. Poll `POST /products/orders/retrieve` until the status is `completed`, `failed` or `refunded`. See [Automate fulfilment](/guides/automate-fulfilment).
 </Note>
+
+## Shop2Game order ID
+
+Delivered Free Fire (MENA) top-ups carry the **Shop2Game order ID**: the transaction number of the top-up itself. Use it for support requests or to match your own records.
+
+- `GET /products/order/{orderId}` and `POST /products/orders/retrieve`: field `shop2game_order_id`
+- [Webhooks](/guides/webhooks): the same field in the order payload
+- Dashboard: shown in the order details
+
+```json
+{ "order_id": "1795616719384662063", "status": "completed", "shop2game_order_id": "13639533933491789070" }
+```
+
+It is `null` for every other kind of order, and until the order is completed.
