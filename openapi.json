@@ -259,7 +259,7 @@
           "shop2game_order_id": {
             "type": "string",
             "nullable": true,
-            "description": "Free Fire MENA top-ups only: the Shop2Game transaction number of the delivered top-up. `null` for every other order and until the order is completed.",
+            "description": "Free Fire top-ups only: the Shop2Game transaction number of the delivered top-up. `null` for every other order and until the order is completed.",
             "example": "13639533933491789070"
           }
         }

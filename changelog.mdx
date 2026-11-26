@@ -3,6 +3,15 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="November 2026 (5)" description="Free Fire Global">
+  **New**
+  - **Free Fire Global**: product `215` ("Free Fire (MENA)" before) now accepts players from **every region** (`ME`, `EUROPE`, `NA`, `SAC`...). `POST /catalog/{id}/verify` returns the player's `region` as reported by the game. Same prices as before.
+  - **Level Up Pass**: six new variants (Lv.6 to Lv.30), claimable once per Free Fire account. An already claimed tier fails within seconds, is not charged and is refunded; `failure.code` is `not_eligible`.
+
+  **Changed**
+  - The product name is now `Free Fire Global`. Match the product by `id` (`215`) rather than by name.
+</Update>
+
 <Update label="November 2026 (4)" description="Shop2Game order ID">
   **New**
   - Delivered Free Fire (MENA) top-ups now return the **Shop2Game order ID** as `shop2game_order_id`: in `GET /products/order/{orderId}`, in `POST /products/orders/retrieve`, in every order webhook and in the dashboard order details. It is `null` for other orders and until the order is completed. See [Game top-ups](/guides/game-topups#shop2game-order-id).

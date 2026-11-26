@@ -11,14 +11,15 @@ const headers = { "X-Api-Key": process.env.WASMOU_KEY, "Content-Type": "applicat
 
 // 1. Find the product (kind "topup") and its input indexes in the catalog
 const { data } = await (await fetch(`${API}/catalog`, { headers })).json();
-const product = data.products.find((p) => p.name === "Free Fire (MENA)");
-const variant = product.variants.find((v) => v.name === "110 Diamonds");
+const product = data.products.find((p) => p.id === 215); // Free Fire Global
+const variant = product.variants.find((v) => v.name === "100 Diamonds");
 
 // 2. Verify the player ID (optional)
 const check = await (await fetch(`${API}/catalog/${product.id}/verify`, {
   method: "POST", headers, body: JSON.stringify({ 0: "123456789" }),
 })).json();
 if (check.status === "invalid") throw new Error("Wrong player ID");
+// check.status "valid" also gives check.player_name and check.region ("ME", "EUROPE", "NA", "SAC"...)
 
 // 3. Order, then poll until the status is final
 const order = await (await fetch(`${API}/products/purchase/${variant.id}`, {
@@ -30,9 +31,15 @@ const order = await (await fetch(`${API}/products/purchase/${variant.id}`, {
 Failed top-ups are refunded to your wallet automatically. Poll `POST /products/orders/retrieve` until the status is `completed`, `failed` or `refunded`. See [Automate fulfilment](/guides/automate-fulfilment).
 </Note>
 
+## Free Fire Global
+
+Free Fire (product `215`) is sold for **every Garena region**, not only MENA: `ME`, `EUROPE`, `NA`, `SAC` and the rest, at the same prices. `POST /catalog/215/verify` returns the player's `player_name` and `region` when the ID exists, and `status: "invalid"` when it does not. Do not reject a player because of the region.
+
+Besides diamonds, memberships and Booyah Pass, the product has six **Level Up Pass** tiers (Lv.6, 10, 15, 20, 25, 30). Each tier can be claimed **once per Free Fire account**. When the account already claimed it (or is not eligible), or the player ID does not exist, the order fails within seconds, nothing is charged and the wallet is refunded in full. The order then has `status: "failed"` and `failure.code` is `not_eligible` (Level Up Pass) or `invalid_player`.
+
 ## Shop2Game order ID
 
-Delivered Free Fire (MENA) top-ups carry the **Shop2Game order ID**: the transaction number of the top-up itself. Use it for support requests or to match your own records.
+Delivered Free Fire Global top-ups carry the **Shop2Game order ID**: the transaction number of the top-up itself. Use it for support requests or to match your own records.
 
 - `GET /products/order/{orderId}` and `POST /products/orders/retrieve`: field `shop2game_order_id`
 - [Webhooks](/guides/webhooks): the same field in the order payload
