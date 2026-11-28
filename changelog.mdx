@@ -3,6 +3,14 @@ title: "Changelog"
 description: "What changed in the Wasmou API."
 ---
 
+<Update label="November 2026 (7)" description="Flexy: debt and balances on every order">
+  **New**
+  - Every Flexy order (`/flexy/topup`, `/flexy/status/{id}`, `/flexy/history`) now returns `debt` (the Ooredoo unpaid balance paid with that top-up, `0` if none), `balance_before`, `balance_after` and, on refunded orders, `refund_balance_after`.
+
+  **Clarified**
+  - `price` is the total charged, debt included. When `pay_debt` is `true`, `price = discounted amount + debt`. See [Ooredoo unpaid balance](/services/flexy#ooredoo-unpaid-balance).
+</Update>
+
 <Update label="November 2026 (6)" description="Credit line">
   **New**
   - **Credit line**: Wasmou can grant your account a credit limit (how far below zero your wallet may go). `GET /account` and `GET /balance` now return `credit_limit`, `credit_owed`, `credit_available` and `spendable_balance` (`available_balance + credit_limit`). Your next deposit repays what you owe first. All four fields are `0` / equal to `available_balance` when you have no line. See [Account & balance](/services/account).

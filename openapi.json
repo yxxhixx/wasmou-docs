@@ -1787,7 +1787,26 @@
                         },
                         "price": {
                           "type": "number",
-                          "description": "What left your wallet (DZD)"
+                          "description": "Total that left your wallet (DZD): the top-up plus `debt` when you chose to pay an Ooredoo unpaid balance"
+                        },
+                        "debt": {
+                          "type": "number",
+                          "description": "Ooredoo unpaid balance paid with this top-up (DZD), already inside `price`. 0 when none."
+                        },
+                        "balance_before": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Your wallet before this order (DZD)"
+                        },
+                        "balance_after": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Your wallet right after this order (DZD); after a refund see `refund_balance_after`"
+                        },
+                        "refund_balance_after": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Your wallet after the automatic refund, only on failed orders"
                         },
                         "offer": {
                           "type": "string",
@@ -1907,7 +1926,26 @@
                         },
                         "price": {
                           "type": "number",
-                          "description": "What left your wallet (DZD)"
+                          "description": "Total that left your wallet (DZD): the top-up plus `debt` when you chose to pay an Ooredoo unpaid balance"
+                        },
+                        "debt": {
+                          "type": "number",
+                          "description": "Ooredoo unpaid balance paid with this top-up (DZD), already inside `price`. 0 when none."
+                        },
+                        "balance_before": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Your wallet before this order (DZD)"
+                        },
+                        "balance_after": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Your wallet right after this order (DZD); after a refund see `refund_balance_after`"
+                        },
+                        "refund_balance_after": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Your wallet after the automatic refund, only on failed orders"
                         },
                         "offer": {
                           "type": "string",
@@ -2049,7 +2087,26 @@
                               },
                               "price": {
                                 "type": "number",
-                                "description": "What left your wallet (DZD)"
+                                "description": "Total that left your wallet (DZD): the top-up plus `debt` when you chose to pay an Ooredoo unpaid balance"
+                              },
+                              "debt": {
+                                "type": "number",
+                                "description": "Ooredoo unpaid balance paid with this top-up (DZD), already inside `price`. 0 when none."
+                              },
+                              "balance_before": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "Your wallet before this order (DZD)"
+                              },
+                              "balance_after": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "Your wallet right after this order (DZD); after a refund see `refund_balance_after`"
+                              },
+                              "refund_balance_after": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "Your wallet after the automatic refund, only on failed orders"
                               },
                               "offer": {
                                 "type": "string",

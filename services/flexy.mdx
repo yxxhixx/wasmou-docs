@@ -52,9 +52,9 @@ Send an `idempotency_key` (max 64 characters, unique per order in your system, f
     ```json Response (202)
     { "status": "success", "message": "Top-up submitted for processing.",
       "data": { "id": 4812, "number": "0699123456", "operator": "mobilis", "type": "prepaid",
-                "amount": 500, "price": 485, "status": "processing", "final": false, "client_ref": "order_1001", "balance": 15230.5 } }
+                "amount": 500, "price": 485, "debt": 0, "status": "processing", "final": false, "client_ref": "order_1001", "balance": 15230.5 } }
     ```
-    `amount` is what the recipient receives. `price` is what leaves your wallet.
+    `amount` is what the recipient receives. `price` is the **total** that leaves your wallet: the top-up plus `debt` when you chose to pay an Ooredoo unpaid balance (`debt` is `0` otherwise). Every order (submit, status, history) also returns `balance_before` and `balance_after`, so you can reconcile each charge.
   </Step>
   <Step title="Poll until final">
     ```bash
@@ -80,7 +80,24 @@ Offer ids are only unique **inside a category** (for example Mobilis has a `MIX`
 
 ## Ooredoo unpaid balance
 
-For Ooredoo `prepaid` and `offer` top-ups, call `POST /api/flexy/ooredoo-debt-check` first (it stays valid for about 9 minutes). If `has_debt` is `true` you choose: `pay_debt: true` adds the debt to the price, `pay_debt: false` skips it. Skipping the check returns a validation error.
+Ooredoo lines can carry an unpaid balance (a "Sabaqli" advance or a loan). For Ooredoo `prepaid` and `offer` top-ups, call `POST /api/flexy/ooredoo-debt-check` first (it stays valid for about 9 minutes). Skipping the check returns a validation error.
+
+```json Debt check answer
+{ "status": "success", "data": { "has_debt": true, "debt_amount": 430, "valid_for_seconds": 540 } }
+```
+
+If `has_debt` is `true` you must decide, and it changes what you are charged:
+
+| `pay_debt` | What happens | `price` charged |
+|---|---|---|
+| `true` | The debt is settled together with the top-up | `amount` (after discount) + `debt_amount` |
+| `false` (default) | The debt is left on the line | `amount` only |
+
+Example: `amount: 250` on a line owing 430 DA with `pay_debt: true` charges **680 DA** (250 + 430). The order comes back with `price: 680`, `debt: 430`, and your wallet moves from `balance_before` to `balance_after` by exactly 680.
+
+<Note>
+Always send `expected_price` (the total you showed your customer, debt included). If the real total differs, for example because the debt changed after your check, the order is refused instead of charging a different amount. Show your end customer the debt line before they confirm; do not default `pay_debt` to `true` on their behalf.
+</Note>
 
 ## Bulk top-ups
 
