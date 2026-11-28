@@ -18,7 +18,11 @@ Retrieve your account details and balance.
     "name": "John Doe",
     "email": "john@example.com",
     "balance": 5000.00,
-    "available_balance": 4500.00
+    "available_balance": 4500.00,
+    "credit_limit": 0,
+    "credit_owed": 0,
+    "credit_available": 0,
+    "spendable_balance": 4500.00
   }
 }
 ```
@@ -35,7 +39,28 @@ Retrieve the balance only. This is the lightest call to make before a purchase.
   "message": "Balance retrieved",
   "data": {
     "balance": 5000.00,
-    "available_balance": 4500.00
+    "available_balance": 4500.00,
+    "credit_limit": 0,
+    "credit_owed": 0,
+    "credit_available": 0,
+    "spendable_balance": 4500.00
+  }
+}
+```
+
+With a credit line (limit 500, wallet at -120):
+
+```json Response
+{
+  "status": "success",
+  "message": "Balance retrieved",
+  "data": {
+    "balance": -120.00,
+    "available_balance": -120.00,
+    "credit_limit": 500.00,
+    "credit_owed": 120.00,
+    "credit_available": 380.00,
+    "spendable_balance": 380.00
   }
 }
 ```
@@ -55,7 +80,11 @@ curl -X GET "https://api.wasmou.net/api/balance" \
 ## Balance notes
 
 - `balance` is the total balance of your wallet.
-- `available_balance` is what you can spend right now (the balance minus amounts reserved by pending operations). **Use this one for decisions.**
+- `available_balance` is your balance minus amounts reserved by pending operations. It is negative while you are using a credit line.
+- `credit_limit` is the credit line Wasmou granted to your account: how far below zero your wallet may go. It is `0` when you have none. Lines are granted by Wasmou on request.
+- `credit_owed` is what you owe right now (your wallet is below zero). `credit_available` is the part of the line still unused (`credit_limit - credit_owed`).
+- `spendable_balance` is `available_balance + credit_limit`: the most one order can cost right now. **Use this one for decisions** when you may have a credit line; it equals `available_balance` when you have none.
+- Your next deposit repays what you owe first, automatically. Nothing else to do.
 - Amounts are in your wallet currency: DZD, or USD for accounts billed in dollars. In that case the answer also carries a top-level `currency` field (`"USD"`).
 - If an order fails, the amount is **refunded automatically**.
 - Add funds from the [deposit page](https://myapp.wasmou.net/deposit).

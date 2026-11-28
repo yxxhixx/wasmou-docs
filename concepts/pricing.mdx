@@ -5,7 +5,7 @@ description: "What you pay and how your wallet works."
 
 - Amounts are in your wallet currency: **DZD**, or **USD** for accounts billed in dollars (the answer then carries `"currency": "USD"`).
 - The `price` in the catalog is **your** price, with your reseller terms applied. Other accounts may see different prices for the same variant.
-- Your wallet has a `balance` and an `available_balance`. The available balance is what you can spend right now (balance minus amounts reserved by pending operations). Use `available_balance` for decisions.
+- Your wallet has a `balance` and an `available_balance`. The available balance is what you can spend right now (balance minus amounts reserved by pending operations). Use `spendable_balance` for decisions: it adds your credit line (`credit_limit`, `0` unless Wasmou granted you one) to `available_balance`. See [Account & balance](/services/account).
 - Prices of automatic products (gift cards, top-ups) follow the market: they are computed from a USD price and can change between catalog refreshes. Refresh the catalog every 5 to 15 minutes.
 - A purchase debits the wallet when it is accepted. Failed or canceled orders are refunded automatically.
 

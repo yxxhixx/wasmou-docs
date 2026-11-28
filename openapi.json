@@ -47,7 +47,27 @@
           "available_balance": {
             "type": "number",
             "example": 10001,
-            "description": "What you can spend right now."
+            "description": "Balance minus amounts reserved by pending operations. Negative while a credit line is in use."
+          },
+          "credit_limit": {
+            "type": "number",
+            "example": 0,
+            "description": "Credit line granted to your account: how far below zero the wallet may go. 0 when none."
+          },
+          "credit_owed": {
+            "type": "number",
+            "example": 0,
+            "description": "What you owe now (wallet below zero). Your next deposit repays it first."
+          },
+          "credit_available": {
+            "type": "number",
+            "example": 0,
+            "description": "Unused part of the credit line (credit_limit - credit_owed)."
+          },
+          "spendable_balance": {
+            "type": "number",
+            "example": 10001,
+            "description": "available_balance + credit_limit. Use this one for decisions."
           }
         }
       },
@@ -363,6 +383,18 @@
                           "type": "number"
                         },
                         "available_balance": {
+                          "type": "number"
+                        },
+                        "credit_limit": {
+                          "type": "number"
+                        },
+                        "credit_owed": {
+                          "type": "number"
+                        },
+                        "credit_available": {
+                          "type": "number"
+                        },
+                        "spendable_balance": {
                           "type": "number"
                         }
                       }
